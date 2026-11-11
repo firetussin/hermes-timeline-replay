@@ -26,7 +26,9 @@ for(let i=0;i<=Math.ceil(api.duration*30);i++)api.seek(i/30);
 const snap=t=>{api.seek(t);return JSON.stringify({times:animations.map(a=>a.currentTime),visible:root.children.map(c=>c.style.visibility)});};
 const expected=snap(12.34);api.seek(api.duration);api.seek(0);assert.equal(snap(12.34),expected);
 api.seek(api.duration);assert.equal(root.children.at(-1).style.visibility,'visible');
-assert.equal(api.data.totals.tools,data.events.filter(e=>e.kind==='tool').length);assert.ok(animations.length>50);
+assert.equal(api.data.totals.tools,data.events.filter(e=>e.kind==='tool').length);
+// Orbit draws its body on a canvas (seek/hf-seek); the lane paces build many WAAPI animations.
+if(settings.pace==='orbit')assert.ok(root.children.some(c=>String(c.className).includes('orbit-scene')),'orbit scene present');else assert.ok(animations.length>50);
 assert.ok(root.children.length>=2);
 for(let p=0;p<api.chapters;p++){
  api.seek((p+.5)*settings.seconds/api.chapters);

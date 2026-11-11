@@ -474,9 +474,14 @@ class ReplayTests(unittest.TestCase):
         ns=service.parser().parse_args(['build','--all-time'])
         self.assertTrue(ns.all_time)
         self.assertEqual(ns.seconds,30)
-        for pace in ('social','balanced','linear'):
+        for pace in ('social','balanced','linear','orbit'):
             result=service.run(dict(action='demo',pace=pace,timezone='UTC',seconds=30),self.home)
             self.assertEqual(result['duration'],30)  # requested length is the whole video
+        orbit=service.run(dict(action='demo',pace='orbit',timezone='UTC',seconds=30),self.home)
+        composition=(rendering.bundle_path(orbit['bundle'],self.home)/'index.html').read_text(encoding='utf-8')
+        self.assertIn('"pace":"orbit"',composition)
+        self.assertIn('hf-seek',composition)  # canvas layer redraws from HyperFrames time
+        self.assertEqual(orbit['pace'],'orbit')
 
     def test_mapping_is_monotonic_and_shortens_quiet_gaps(self):
         model=core.replay([event(t) for t in (100,101,102,10000)],timezone_name='UTC')

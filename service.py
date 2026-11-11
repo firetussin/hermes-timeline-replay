@@ -57,7 +57,7 @@ def _run(args, home=None):
     if not isinstance(zone, str):
         raise ValueError("timezone must be an IANA timezone name")
     pace = args.get("pace", "social")
-    if pace not in ("social", "balanced", "linear"):
+    if pace not in ("social", "balanced", "linear", "orbit"):
         raise ValueError("pace must be social, balanced or linear")
     models = args.get("models", True)
     if not isinstance(models, bool):
@@ -145,7 +145,7 @@ def setup_cli(p):
         q.add_argument("--resolution", choices=["720p", "1080p", "1440p", "2160p"], default="1080p", help="MP4 size; larger is much slower on software GL")
         q.add_argument("--events-limit", dest="events_limit", type=int, choices=[20000, 50000, 100000], default=20000, help="Replay event cap; higher means longer checks and larger previews")
         q.add_argument("--timezone", default="America/Chicago")
-        q.add_argument("--pace", choices=["social","balanced","linear"], default="social")
+        q.add_argument("--pace", choices=["social","balanced","linear","orbit"], default="social")
         if name == "build":
             q.add_argument("--profiles", nargs="+", default=["current"])
             group = q.add_mutually_exclusive_group()
@@ -163,7 +163,7 @@ def setup_cli(p):
     q.add_argument("path")
     q.add_argument("--seconds", type=float, default=60)
     q.add_argument("--timezone", default="America/Chicago")
-    q.add_argument("--pace", choices=["social","balanced","linear"], default="social")
+    q.add_argument("--pace", choices=["social","balanced","linear","orbit"], default="social")
     q.add_argument("--no-models", dest="models", action="store_false")
     q = sub.add_parser("watch", help="Live terminal activity HUD from captured metadata; Ctrl+C to stop")
     q.add_argument("--profiles",nargs="+",default=["current"])

@@ -2,7 +2,7 @@
 
 
 def finale(pace):
-    return {"social": 4, "balanced": 6, "linear": 8}[pace]
+    return {"social": 4, "balanced": 6, "linear": 8, "orbit": 4}[pace]
 
 
 def split(total, pace):
@@ -13,13 +13,13 @@ def split(total, pace):
 
 
 def anchors(model, pace):
-    if pace not in ("social", "balanced", "linear"):
+    if pace not in ("social", "balanced", "linear", "orbit"):
         raise ValueError("Unknown pacing mode")
     span = model["span"]
     times = sorted({0.0, span, *(max(0.0, min(span, e["offset"])) for e in model["events"])})
     if len(times) > 512:
         times = [times[round(i*(len(times)-1)/511)] for i in range(512)]
-    exponent = {"social": .28, "balanced": .65, "linear": 1.0}[pace]
+    exponent = {"social": .28, "balanced": .65, "linear": 1.0, "orbit": .28}[pace]
     weights = [(b-a)**exponent for a,b in zip(times,times[1:])]
     total = sum(weights) or 1
     result = [{"real": times[0], "screen": 0.0}]

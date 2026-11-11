@@ -6,7 +6,7 @@ Shapes mirror the CT114 failures reported on 2026-11-10 (counts only, no real da
 Profile names include long labels so lane labels hit the width limit. Every event is
 fabricated and the model is flagged demo=True.
 
-Usage: python tests/stress_fixture.py OUT_DIR [medium|large] [social|balanced|linear] [seconds]
+Usage: python tests/stress_fixture.py OUT_DIR [medium|large] [social|balanced|linear|orbit] [seconds]
 Writes OUT_DIR/index.html (export composition) and OUT_DIR/replay.html (interactive).
 """
 import importlib.util
