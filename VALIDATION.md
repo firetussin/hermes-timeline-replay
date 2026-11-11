@@ -1,3 +1,8 @@
+# Timeline Replay 0.5.2 — November 11, 2026
+
+- **CT114 real data, 0.5.1** (HOST8): installed pinned at 10f8fc30; Ridgelines 195 s and Day clock 204 s (all-time 60 s 1080p), gate ok. Day clock fix confirmed in all 11 contact-sheet tiles. Ridgelines: Scout's ridge read as missing. It was drawn rows above its label because Scout never goes quiet; addressed by tinted fills in 0.5.2.
+- **Development PC, 0.5.2:** ridgelines-only change. HyperFrames check 0 errors, 0 runtime and lint warnings for Ridgelines at 1.1k and 20k events and at 4K, and Social at 1.1k; seek harness, 49 Python tests (repeated) and the Desktop harness pass.
+
 # Timeline Replay 0.5.1 — November 11, 2026
 
 - **CT114 real data, 0.5.0** (HOST8; 6 cores, 12 GiB, 3 workers, HyperFrames 0.9.23; all-time = 23,359 events, 11 profiles; 7 days = 1,014 events, 7 profiles): Skyline 7 days 30 s 46 s; Pulse 225 s; Flow river 208 s; Day clock 209 s; Neural net 223 s; Code rain 199 s; Ridgelines 191 s (all-time 60 s, 1080p, layout check 93–104 s). All 7 verified by ffprobe, gate 0 errors (2 known craft warnings). Social on the same all-time data: 372 s. HOST8's contact sheets found the Ridgelines scaling bug, the Day clock date mismatch and the Code rain label truncation fixed here. Skyline's empty right-hand blocks are quiet time slices, as designed.

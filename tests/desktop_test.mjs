@@ -38,7 +38,7 @@ find(tree,'All available').props.onClick();tree=render();
 find(tree,'Create replay').props.onClick();await new Promise(resolve=>setImmediate(resolve));
 const build=requests.find(r=>r.opts?.body?.action==='build');
 assert.equal(build.opts.body.client_api,1);
-assert.match(text(tree),/v0\.5\.1/);
+assert.match(text(tree),/v0\.5\.2/);
 assert.match(text(tree),/Metadata only: no prompts, transcripts or tool results\./);
 assert.equal(build.opts.body.range,'all');assert.equal(build.opts.body.pace,'social');assert.equal(build.opts.body.seconds,30);assert.equal(build.opts.body.history,true);
 tree=render();await find(tree,'Video setup').props.onClick();tree=render();
@@ -70,7 +70,7 @@ const showNotice=()=>{cursor=0;const t=render();const n=notice(t);if(!n)return n
 for(const k of Object.keys(states))delete states[k];
 assert.equal(notice(render()),undefined,'no notice when versions match or host version unknown');
 globalThis.hostVersion='9.9.9';let nt=showNotice();
-assert.match(text(nt),/v9\.9\.9 is on the Hermes host; this Desktop page is v0\.5\.1/);assert.match(text(nt),/Capabilities → Plugins/);
+assert.match(text(nt),/v9\.9\.9 is on the Hermes host; this Desktop page is v0\.5\.2/);assert.match(text(nt),/Capabilities → Plugins/);
 find(nt,'Open Plugins').props.onClick();assert.deepEqual(navigated,['/capabilities?tab=plugins']);
 await find(nt,'Copy update link').props.onClick();assert.equal(clipboard.at(-1),'hermes://plugin/install?repo=firetussin/hermes-timeline-replay&force=1');
 nt=showNotice();assert.ok(find(nt,'Link copied'));

@@ -178,8 +178,8 @@ const level=(r,b)=>.5*dens2[r][b]/rowMax[r]+.5*Math.sqrt(dens2[r][b]/mx);
 function drawRidge(time){
  if(!g)return;const T=Math.max(0,Math.min(segment,time));g.setTransform(px,0,0,px,0,0);g.globalAlpha=1;g.clearRect(0,0,W,H);
  const rows=profs.length,cut=Math.min(BINS,Math.ceil(BINS*T/Math.max(.001,segment))),gap=Math.min(70,520/Math.max(1,rows)),bottom=930;
- for(let r=0;r<rows;r++){const depth=r/Math.max(1,rows-1),base=bottom-gap*(rows-1-r),x0=230-50*(1-depth),x1=1180+50*(1-depth),amp=Math.min(230,gap*2.6,base-200)*(.75+.25*depth),X=b=>x0+(x1-x0)*b/(BINS-1),Y=b=>base-amp*level(r,b);
-  g.fillStyle="#06070d";g.beginPath();g.moveTo(X(0),base);for(let b=0;b<BINS;b++)g.lineTo(X(b),b<cut?Y(b):base);g.lineTo(X(BINS-1),base);g.closePath();g.fill();
+ for(let r=0;r<rows;r++){const depth=r/Math.max(1,rows-1),base=bottom-gap*(rows-1-r),x0=230-50*(1-depth),x1=1180+50*(1-depth),amp=Math.min(200,gap*2.1,base-200)*(.75+.25*depth),X=b=>x0+(x1-x0)*b/(BINS-1),Y=b=>base-amp*level(r,b);
+  g.beginPath();g.moveTo(X(0),base);for(let b=0;b<BINS;b++)g.lineTo(X(b),b<cut?Y(b):base);g.lineTo(X(BINS-1),base);g.closePath();g.fillStyle="#06070d";g.fill();g.fillStyle=color(r,46,.3);g.fill();
   g.strokeStyle="rgba(255,255,255,.08)";g.beginPath();g.moveTo(X(0),base);g.lineTo(X(BINS-1),base);g.stroke();
   if(cut>1){for(const [w,a] of [[5,.15],[1.8,1]]){g.strokeStyle=color(r,w>2?60:76,a);g.lineWidth=w;g.beginPath();for(let b=0;b<cut;b++)b?g.lineTo(X(b),Y(b)):g.moveTo(X(b),Y(b));g.stroke();}g.fillStyle=color(r,92,1);g.beginPath();g.arc(X(cut-1),Y(cut-1),4,0,TAU);g.fill();}
   g.lineWidth=1;txt(profs[r].length>14?profs[r].slice(0,13)+"…":profs[r],x0-12,base+5,Math.max(11,Math.min(14,gap*.5)),color(r,75),600,"right");}

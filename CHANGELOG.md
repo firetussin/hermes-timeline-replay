@@ -1,5 +1,9 @@
 # Changes
 
+## 0.5.2 — November 11, 2026
+
+- **Ridgelines:** on CT114 the busiest, steadiest profile (Scout) never came down to its own baseline, so its ridge floated in the rows above while its label sat next to empty space (HOST8 re-render of 0.5.1). Each ridge's area is now filled with a tint of its colour, so every ridge reads as a band rising from its own label, and the maximum ridge height is lower (2.1 rows instead of 2.6) to reduce overlap.
+
 ## 0.5.1 — November 11, 2026
 
 Fixes from the first real-data renders of the 0.5.0 styles (HOST8, CT114). Update both parts; the page's **Update Timeline Replay** button covers both.

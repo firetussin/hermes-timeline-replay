@@ -1,4 +1,4 @@
-# Timeline Replay 0.5.1
+# Timeline Replay 0.5.2
 
 Animated replays of recorded Hermes activity across explicitly selected profiles and agents. Build private HTML, preview it inside Hermes Desktop, and render the same artwork to MP4 on the connected Hermes host.
 
@@ -11,7 +11,7 @@ Animated replays of recorded Hermes activity across explicitly selected profiles
 - **Video on the Hermes host.** HyperFrames renders the MP4 at 720p, 1080p, 1440p or 4K. Exports show live progress with an ETA learned on that host. Watch or download finished videos in the page.
 - **Settings → Plugins → Timeline Replay** holds per-user defaults. The CLI (`hermes replay …`) has the same options plus a live terminal HUD.
 
-See [CHANGELOG.md](CHANGELOG.md) for each release, from 0.2.1 to 0.5.1.
+See [CHANGELOG.md](CHANGELOG.md) for each release, from 0.2.1 to 0.5.2.
 
 Open [the animated sample](demo/replay.html), [the restrained Linear sample](demo/linear.html), or [the Desktop design preview](demo/desktop-preview.html). The design preview uses a mocked Hermes SDK, not a connection to a real profile. It includes dark/light theme switches; the plugin itself uses the app's actual SDK components.
 

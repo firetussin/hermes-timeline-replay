@@ -2,7 +2,7 @@
 import re
 from pathlib import Path
 
-VERSION = "0.5.1"
+VERSION = "0.5.2"
 # Bump API only for breaking request/response changes between Desktop and backend.
 API = 1
 
