@@ -1,5 +1,10 @@
 # Changes
 
+## 0.2.17 — November 11, 2026
+
+- **Explains itself in the app:** a short intro under the page title and as the first row of Settings → Plugins → Timeline Replay → About (what it does; metadata only, no prompts, transcripts or tool results).
+- **License:** MIT (`LICENSE`).
+
 ## 0.2.16 — November 11, 2026
 
 - **Estimates:** the all-time check was still estimated at 160 s when CT114 had two identical exports taking 234 s. Check time now comes straight from recent exports with a similar event count (within ±15%, median of the newest three), narrowed to the same layout, worker count and lane density. The power-law fit only covers sizes the host hasn't exported yet, and only its newest rows. New stats rows record a layout version, so rows from the older chapter layout stop counting once newer ones exist.

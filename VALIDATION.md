@@ -1,3 +1,7 @@
+# Timeline Replay 0.2.17 — November 11, 2026
+
+Intro text in the page header and Settings → About, and an MIT LICENSE; composition code is unchanged. Development PC: 46 Python tests pass; the Desktop harness (now also asserting the intro text), seek and lane-visibility harnesses pass; HyperFrames check on the medium Social 1080p stress fixture: 0 errors, 0 runtime warnings, 2 known craft warnings.
+
 # Timeline Replay 0.2.16 — November 11, 2026
 
 An estimate and README release; composition code is unchanged. Development PC: 46 Python tests pass, including a regression test built from HOST8's CT114 render-stats rows (all-time check now 235 s against 234–235 s actual, previously 160 s). The Desktop, seek and lane-visibility harnesses pass, and the HyperFrames check on the medium Social 1080p stress fixture (1,159 events, 7 lanes) has 0 errors and 0 runtime warnings, with the 2 known craft warnings. Correction: the 0.2.15 note below says 46 Python tests, but that release had 44; the 2 new tests bring the count to 46.
