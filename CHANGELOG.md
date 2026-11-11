@@ -1,5 +1,14 @@
 # Changes
 
+## 0.5.1 — November 11, 2026
+
+Fixes from the first real-data renders of the 0.5.0 styles (HOST8, CT114). Update both parts; the page's **Update Timeline Replay** button covers both.
+
+- **Ridgelines:** a profile with steady activity (Scout on CT114, the busiest profile) stayed flat because every ridge was scaled against one burst elsewhere. Each ridge now mixes its own peak with a square-root share of the busiest, and ridge height is capped to a few rows.
+- **Day clock:** the centre date and the hand now follow the replay clock, like the header (they showed the newest event's day, which could differ across midnight).
+- **Code rain:** profile labels keep up to 12 characters ("Researchbot" fits).
+- **Update notice:** the 0.5.0 **Update Timeline Replay** button could never work. Hermes Desktop refuses `hermes://` links opened from inside the app (only http, https, mailto and file pass its external-link check), so it always fell back. HOST8 found this in the real test. The notice now offers **Open Plugins** (Capabilities → Plugins, where Hermes' Update / Update all works), the host command with **Copy host command**, and **Copy update link** for Win+R.
+
 ## 0.5.0 — November 11, 2026
 
 Update both parts: the Hermes host (then `hermes gateway restart`) and the Desktop page.

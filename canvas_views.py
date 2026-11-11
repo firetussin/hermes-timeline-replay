@@ -121,7 +121,7 @@ function drawClock(time){
  for(let i=0;i<n;i++){const d=dots[i],a=TAU*d.tod-Math.PI/2,rad=R0+RW*(d.r+.12+.76*((d.day+d.j)/days)),x=CX+Math.cos(a)*rad,y=CY+Math.sin(a)*rad,fresh=Math.max(0,1-(T-d.t)/1.5);
   if(fresh>0||d.err){g.fillStyle=d.err?"rgba(255,92,108,.95)":color(d.r,85,.6+.4*fresh);g.beginPath();g.arc(x,y,2.6+3*fresh,0,TAU);g.fill();if(fresh>.3){g.fillStyle=color(d.r,85,.16*fresh);g.beginPath();g.arc(x,y,12,0,TAU);g.fill();}}else settled[d.r].push(x,y);}
  settled.forEach((L,r)=>{g.fillStyle=color(r,66,.62);g.beginPath();for(let i=0;i<L.length;i+=2){g.moveTo(L[i]+2.4,L[i+1]);g.arc(L[i],L[i+1],2.4,0,TAU);}g.fill();});
- const N=upper(allBorn,T),cur=N?ordered[N-1].e:ordered.length?ordered[0].e:null;
+ const N=upper(allBorn,T),now=realAt(Math.min(1,T/Math.max(.001,segment))),cur=ordered.length?{offset:now}:null;
  if(cur){const ca=TAU*todOf(cur.offset)-Math.PI/2,L=RMAX+8;g.strokeStyle="rgba(255,255,255,.75)";g.lineWidth=2;g.beginPath();g.moveTo(CX,CY);g.lineTo(CX+Math.cos(ca)*L,CY+Math.sin(ca)*L);g.stroke();g.lineWidth=1;
   g.fillStyle="#05060b";g.beginPath();g.arc(CX,CY,R0*.82,0,TAU);g.fill();txt(fmtD.format(new Date((D.start+cur.offset)*1000)),CX,CY-4,24,"#f2f4ff",650,"center");txt(fmtH.format(new Date((D.start+cur.offset)*1000)),CX,CY+22,15,"#9aa3c4",500,"center");}
  panel(T,N);
@@ -163,7 +163,7 @@ function drawRain(time){
  const perCol=new Array(rows).fill(0);for(let i=n-1;i>=Math.max(0,n-3000);i--){const x0e=ordered[i],age=T-x0e.t;if(age>fall)break;const r=pIdx.get(x0e.e.profile)||0;if(++perCol[r]>40)continue;const x=x0+colW*(r+.12+.76*xs[i]),yHead=top+(floor-top-20)*(age/fall),s2=glyphs[i];
   for(let k=0;k<s2.length;k++){const y=yHead-k*(size+1);if(y<top)break;const a=k===0?1:Math.max(0,.75-k*.08);g.fillStyle=k===0?"#f4fff8":x0e.e.status==="error"?`rgba(255,92,108,${a.toFixed(2)})`:color(r,62,a*.9);g.fillText(s2[k],x,y);}}
  profs.forEach((p,r)=>{const x=x0+colW*r,c=upper(perProfileBorn.get(p)||[],T),h2=240*Math.sqrt(c/maxTot);g.fillStyle=color(r,40,.55);g.fillRect(x+colW*.15,floor-h2,colW*.7,h2);g.fillStyle=color(r,70,.95);g.fillRect(x+colW*.15,floor-h2,colW*.7,3);
-  txt(p.length>10?p.slice(0,9)+"…":p,x+colW/2,floor+24,Math.max(10,Math.min(14,colW/7)),color(r,75),600,"center");txt(short(c),x+colW/2,floor-h2-9,12,"#e8ebfa",600,"center");});
+  txt(p.length>12?p.slice(0,11)+"…":p,x+colW/2,floor+24,Math.max(10,Math.min(14,colW/7)),color(r,75),600,"center");txt(short(c),x+colW/2,floor-h2-9,12,"#e8ebfa",600,"center");});
  g.strokeStyle="rgba(255,255,255,.12)";g.beginPath();g.moveTo(x0,floor);g.lineTo(x0+span,floor);g.stroke();
  panel(T,n);
  txt("CODE RAIN · ONE COLUMN PER PROFILE · EACH EVENT FALLS AS ITS TOOL OR MODEL NAME AND LANDS ON THAT PROFILE'S PILE · RED STREAMS ENDED IN AN ERROR",64,1030,12,"#6f7896",500);
@@ -173,17 +173,18 @@ drawers.push(drawRain);
     "ridgelines": r'''
 const BINS=150,dens=profs.map(()=>new Float64Array(BINS));for(const x of ordered){const b=Math.min(BINS-1,Math.floor(BINS*x.t/Math.max(.001,segment)));dens[pIdx.get(x.e.profile)||0][b]+=1;}
 const smooth=a=>{const o=new Float64Array(a.length);for(let b=0;b<a.length;b++){let s2=0,w=0;for(let k=-6;k<=6;k++){const j=b+k;if(j<0||j>=a.length)continue;const q=Math.exp(-k*k/12);s2+=a[j]*q;w+=q;}o[b]=s2/w;}return o;};
-const dens2=dens.map(smooth),mx=Math.max(1e-9,...dens2.map(a=>Math.max(...a)));
+const dens2=dens.map(smooth),mx=Math.max(1e-9,...dens2.map(a=>Math.max(...a))),rowMax=dens2.map(a=>Math.max(1e-9,...a));
+const level=(r,b)=>.5*dens2[r][b]/rowMax[r]+.5*Math.sqrt(dens2[r][b]/mx);
 function drawRidge(time){
  if(!g)return;const T=Math.max(0,Math.min(segment,time));g.setTransform(px,0,0,px,0,0);g.globalAlpha=1;g.clearRect(0,0,W,H);
  const rows=profs.length,cut=Math.min(BINS,Math.ceil(BINS*T/Math.max(.001,segment))),gap=Math.min(70,520/Math.max(1,rows)),bottom=930;
- for(let r=0;r<rows;r++){const depth=r/Math.max(1,rows-1),base=bottom-gap*(rows-1-r),x0=230-50*(1-depth),x1=1180+50*(1-depth),amp=Math.min(230,base-200)*(.75+.25*depth),X=b=>x0+(x1-x0)*b/(BINS-1),Y=b=>base-amp*dens2[r][b]/mx;
+ for(let r=0;r<rows;r++){const depth=r/Math.max(1,rows-1),base=bottom-gap*(rows-1-r),x0=230-50*(1-depth),x1=1180+50*(1-depth),amp=Math.min(230,gap*2.6,base-200)*(.75+.25*depth),X=b=>x0+(x1-x0)*b/(BINS-1),Y=b=>base-amp*level(r,b);
   g.fillStyle="#06070d";g.beginPath();g.moveTo(X(0),base);for(let b=0;b<BINS;b++)g.lineTo(X(b),b<cut?Y(b):base);g.lineTo(X(BINS-1),base);g.closePath();g.fill();
   g.strokeStyle="rgba(255,255,255,.08)";g.beginPath();g.moveTo(X(0),base);g.lineTo(X(BINS-1),base);g.stroke();
   if(cut>1){for(const [w,a] of [[5,.15],[1.8,1]]){g.strokeStyle=color(r,w>2?60:76,a);g.lineWidth=w;g.beginPath();for(let b=0;b<cut;b++)b?g.lineTo(X(b),Y(b)):g.moveTo(X(b),Y(b));g.stroke();}g.fillStyle=color(r,92,1);g.beginPath();g.arc(X(cut-1),Y(cut-1),4,0,TAU);g.fill();}
   g.lineWidth=1;txt(profs[r].length>14?profs[r].slice(0,13)+"…":profs[r],x0-12,base+5,Math.max(11,Math.min(14,gap*.5)),color(r,75),600,"right");}
  panel(T,upper(allBorn,T));
- txt("RIDGELINES · ONE RIDGE PER PROFILE · HEIGHT = EVENTS OVER REPLAY TIME (SMOOTHED) · DRAWN LEFT TO RIGHT AS THE REPLAY PLAYS",64,1030,12,"#6f7896",500);
+ txt("RIDGELINES · ONE RIDGE PER PROFILE · HEIGHT = EVENTS OVER REPLAY TIME (SMOOTHED; HALF OWN PEAK, HALF SQUARE-ROOT OF THE BUSIEST) · DRAWN LEFT TO RIGHT",64,1030,12,"#6f7896",500);
 }
 drawers.push(drawRidge);
 ''',

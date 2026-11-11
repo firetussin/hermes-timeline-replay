@@ -1,3 +1,8 @@
+# Timeline Replay 0.5.1 — November 11, 2026
+
+- **CT114 real data, 0.5.0** (HOST8; 6 cores, 12 GiB, 3 workers, HyperFrames 0.9.23; all-time = 23,359 events, 11 profiles; 7 days = 1,014 events, 7 profiles): Skyline 7 days 30 s 46 s; Pulse 225 s; Flow river 208 s; Day clock 209 s; Neural net 223 s; Code rain 199 s; Ridgelines 191 s (all-time 60 s, 1080p, layout check 93–104 s). All 7 verified by ffprobe, gate 0 errors (2 known craft warnings). Social on the same all-time data: 372 s. HOST8's contact sheets found the Ridgelines scaling bug, the Day clock date mismatch and the Code rain label truncation fixed here. Skyline's empty right-hand blocks are quiet time slices, as designed.
+- **Development PC, 0.5.1:** 49 Python tests pass in repeated runs; the Desktop harness covers the new notice (Open Plugins navigates to /capabilities?tab=plugins, both copy buttons, never opens hermes:// itself); seek and lane-visibility harnesses pass. HyperFrames check, 0 errors and 0 runtime and lint warnings (2 known craft warnings): Ridgelines, Day clock and Code rain at 1.1k and 20k events, Ridgelines at 4K, and Social, Orbit and Skyline at 1.1k.
+
 # Timeline Replay 0.5.0 — November 11, 2026
 
 Six more canvas styles, Style/Pacing picker, both-part updates, HyperFrames version check, per-family estimates, Skyline reframed.

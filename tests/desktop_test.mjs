@@ -5,7 +5,7 @@ let source=fs.readFileSync(new URL('../desktop/plugin.js',import.meta.url),'utf8
 const requests=[],drafts=[],states=[];let cursor=0;
 function Button(){}function Input(){}
 const context={useRef:()=>({current:null}),MutationObserver:class{observe(){}disconnect(){}},useMemo:(f)=>f(),navigator:{userAgent:globalThis.UA||''},SDK:{SandboxedFrame:function SandboxedFrame(){},MessageTextContent:function MessageTextContent(){},captureGatewayFileDownload:()=>async()=>{}},ROUTES_AREA:'routes',SIDEBAR_NAV_AREA:'sidebar',Button,Input,
-  icons:{Activity:()=>null},host:{state:{profile:{}},notify:()=>{},composer:{insertText:async(...x)=>{drafts.push(x);return true;},focus:()=>{}}},
+  icons:{Activity:()=>null},host:{state:{profile:{}},notify:()=>{},navigate:url=>navigated.push(url),composer:{insertText:async(...x)=>{drafts.push(x);return true;},focus:()=>{}}},
   h:(tag,props,...children)=>({tag,props:props||{},children:children.flat()}),
   useState:initial=>{const i=cursor++;if(!(i in states))states[i]=typeof initial==='function'?initial():initial;return[states[i],v=>states[i]=typeof v==='function'?v(states[i]):v];},
   useEffect:()=>{},window:{addEventListener(){},removeEventListener(){},location:{reload(){}}},
@@ -17,7 +17,7 @@ const context={useRef:()=>({current:null}),MutationObserver:class{observe(){}dis
 vm.createContext(context);vm.runInContext(source,context);
 let contributions=[];
 const actionsRun=[];
-const opened=[],clipboard=[];
+const opened=[],clipboard=[],navigated=[];
 let settingsPage=null;const stored={};
 const ctx={registerSettingsPage:pg=>{settingsPage=pg;return()=>{};},listActions:()=>[{id:'profile.default',label:'Default profile'}],runAction:id=>{actionsRun.push(id);return{ok:true};},storage:{get:(k,d)=>k in stored?stored[k]:d,set:(k,v)=>{stored[k]=v;}},addEventListener:()=>()=>{},registerMany:x=>contributions.push(...x),os:{writeClipboard:async x=>{clipboard.push(x);return true;},openExternal:async url=>{opened.push(url);return globalThis.openOk!==false;}},rest:async(path,opts)=>{
   requests.push({path,opts});
@@ -38,7 +38,7 @@ find(tree,'All available').props.onClick();tree=render();
 find(tree,'Create replay').props.onClick();await new Promise(resolve=>setImmediate(resolve));
 const build=requests.find(r=>r.opts?.body?.action==='build');
 assert.equal(build.opts.body.client_api,1);
-assert.match(text(tree),/v0\.5\.0/);
+assert.match(text(tree),/v0\.5\.1/);
 assert.match(text(tree),/Metadata only: no prompts, transcripts or tool results\./);
 assert.equal(build.opts.body.range,'all');assert.equal(build.opts.body.pace,'social');assert.equal(build.opts.body.seconds,30);assert.equal(build.opts.body.history,true);
 tree=render();await find(tree,'Video setup').props.onClick();tree=render();
@@ -63,22 +63,21 @@ stored.defaults={...(stored.defaults||{}),resolution:'720p',eventsLimit:50000};
 for(const k of Object.keys(states))delete states[k];globalThis.failStatus=false;requests.length=0;context.navigator.userAgent='';
 tree=render();find(tree,'Create replay').props.onClick();await new Promise(r=>setImmediate(r));
 const b2=requests.find(r=>r.opts?.body?.action==='build');assert.equal(b2.opts.body.resolution,'720p');assert.equal(b2.opts.body.events_limit,50000);
-// Version notice: versions differ → Update Timeline Replay opens Hermes' install dialog for both halves.
+// Version notice: Hermes refuses hermes:// links from inside the app, so the notice sends the user to
+// Capabilities → Plugins (host.navigate) and only offers the link and the host command for copying.
 const notice=t=>flatten(t).find(x=>x.tag?.name==='VersionNotice');
 const showNotice=()=>{cursor=0;const t=render();const n=notice(t);if(!n)return null;cursor=500;return n.tag(n.props);};
 for(const k of Object.keys(states))delete states[k];
 assert.equal(notice(render()),undefined,'no notice when versions match or host version unknown');
 globalThis.hostVersion='9.9.9';let nt=showNotice();
-assert.match(text(nt),/v9\.9\.9 is on the Hermes host; this Desktop page is v0\.5\.0/);
-assert.match(text(nt),/hermes gateway restart/);await find(nt,'Update Timeline Replay').props.onClick();
-assert.deepEqual(opened,['hermes://plugin/install?repo=firetussin/hermes-timeline-replay&force=1']);
-nt=showNotice();assert.doesNotMatch(text(nt),/could not open/);
-globalThis.openOk=false;await find(nt,'Update Timeline Replay').props.onClick();nt=showNotice();
-assert.match(text(nt),/could not open its install dialog/);
-await find(nt,'copy the install link').props.onClick();assert.equal(clipboard.at(-1),opened[0]);
+assert.match(text(nt),/v9\.9\.9 is on the Hermes host; this Desktop page is v0\.5\.1/);assert.match(text(nt),/Capabilities → Plugins/);
+find(nt,'Open Plugins').props.onClick();assert.deepEqual(navigated,['/capabilities?tab=plugins']);
+await find(nt,'Copy update link').props.onClick();assert.equal(clipboard.at(-1),'hermes://plugin/install?repo=firetussin/hermes-timeline-replay&force=1');
 nt=showNotice();assert.ok(find(nt,'Link copied'));
-for(const k of Object.keys(states))delete states[k];globalThis.openOk=true;globalThis.hostVersion='0.2.9';nt=showNotice();
-assert.match(text(nt),/newer than the plugin on the Hermes host \(v0\.2\.9\)/);assert.ok(find(nt,'Update Timeline Replay'),'the host can be updated from the page too');assert.match(text(nt),/hermes gateway restart/);
+for(const k of Object.keys(states))delete states[k];globalThis.hostVersion='0.2.9';nt=showNotice();
+assert.match(text(nt),/newer than the plugin on the Hermes host \(v0\.2\.9\)/);assert.match(text(nt),/hermes plugins install firetussin\/hermes-timeline-replay --force --enable && hermes gateway restart/);
+await find(nt,'Copy host command').props.onClick();assert.equal(clipboard.at(-1),'hermes plugins install firetussin/hermes-timeline-replay --force --enable && hermes gateway restart');
+assert.deepEqual(opened,[],'never tries to open hermes:// from inside the app');
 assert.ok(!requests.some(r=>r.opts?.body?.action==='install'),'the plugin never installs anything itself');
 globalThis.hostVersion=undefined;
 // Style picker: a canvas style hides Pacing and builds with that pace; Timeline brings Pacing back.
