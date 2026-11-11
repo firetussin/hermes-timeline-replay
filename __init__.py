@@ -81,7 +81,7 @@ def register(ctx):
             "days": {"type": "number", "minimum": 0.1, "maximum": 3650},
             "all_time": {"type": "boolean"},
             "range": {"type": "string", "enum": ["24h","7d","30d","all","custom"]},
-            "pace": {"type": "string", "enum": ["social","balanced","linear","orbit"]},
+            "pace": {"type": "string", "enum": ["social","balanced","linear","orbit","galaxy","skyline"]},
             "history": {"type": "boolean", "description": "Also read metadata from selected profiles' state.db; historical outcomes/durations are unknown."},
             "seconds": {"type": "number", "minimum": 10, "maximum": 180},
             "timezone": {"type": "string"}, "title": {"type": "string"},

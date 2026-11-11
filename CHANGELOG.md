@@ -1,5 +1,12 @@
 # Changes
 
+## 0.4.0 — November 11, 2026
+
+Update the Desktop page too (it changed); on a remote host, the page's **Update Desktop page** button does this.
+
+- **Two new paces: Galaxy and Skyline.** Galaxy is a turning spiral where each profile is an arm and every event a star, placed in order so the galaxy grows outward; star size follows tokens, else duration. Skyline is an isometric city with a row per profile and a block per time slice; buildings grow with each event and windows show the most-used model. Both are drawn on one canvas from replay time, like Orbit, and share its side panel. Choose them under Pacing, in Settings → Playback, or with `--pace galaxy|skyline`.
+- **Pacing picker:** six choices, in two rows.
+
 ## 0.3.0 — November 11, 2026
 
 Update the Desktop page too (it changed). On a remote host, the page's **Update Desktop page** button does this.

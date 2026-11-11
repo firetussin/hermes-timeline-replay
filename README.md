@@ -1,17 +1,17 @@
-# Timeline Replay 0.3.0
+# Timeline Replay 0.4.0
 
 Animated replays of recorded Hermes activity across explicitly selected profiles and agents. Build private HTML, preview it inside Hermes Desktop, and render the same artwork to MP4 on the connected Hermes host.
 
 ## What it does
 
-- **Four paces.** *Social* is energetic: a profile-card hub, signal packets, sparks, milestone pops, and quiet gaps compressed on the axis. *Balanced* has gentler emphasis. *Linear* runs on evenly spaced real time. Those three stack up to 16 profiles on one screen in a compact layout; "4 lanes per screen" brings back chapters. *Orbit* draws the same activity as a turning 3D ring (see [Orbit](#orbit)).
+- **Six paces.** *Social* is energetic: a profile-card hub, signal packets, sparks, milestone pops, and quiet gaps compressed on the axis. *Balanced* has gentler emphasis. *Linear* runs on evenly spaced real time. Those three stack up to 16 profiles on one screen in a compact layout; "4 lanes per screen" brings back chapters. *Orbit*, *Galaxy* and *Skyline* draw the same activity as a turning 3D ring, a spiral galaxy and an isometric city (see [Orbit](#orbit) and [Galaxy and Skyline](#galaxy-and-skyline)).
 - **Orbit.** Every recorded event shoots out of a tilted, slowly turning torus as a ray, in its profile's colour, when the replay reaches its real time. A callout follows the newest notable event, and live counters, per-profile counts, an activity line, model share and a token stream run beside it.
 - **Real metadata only.** Tool calls, sessions, delegations, model/provider switches and token totals come from Hermes hooks and saved session history. Transcripts, arguments and results are never captured, and unknown outcomes are never shown as success.
 - **Preview anywhere.** Desktop and the Webapp show the same animated HTML; the Webapp goes through the SDK guest frame. Loop or play once.
 - **Video on the Hermes host.** HyperFrames renders the MP4 at 720p, 1080p, 1440p or 4K. Exports show live progress with an ETA learned on that host. Watch or download finished videos in the page.
 - **Settings → Plugins → Timeline Replay** holds per-user defaults. The CLI (`hermes replay …`) has the same options plus a live terminal HUD.
 
-See [CHANGELOG.md](CHANGELOG.md) for each release, from 0.2.1 to 0.3.0.
+See [CHANGELOG.md](CHANGELOG.md) for each release, from 0.2.1 to 0.4.0.
 
 Open [the animated sample](demo/replay.html), [the restrained Linear sample](demo/linear.html), or [the Desktop design preview](demo/desktop-preview.html). The design preview uses a mocked Hermes SDK, not a connection to a real profile. It includes dark/light theme switches; the plugin itself uses the app's actual SDK components.
 
@@ -97,7 +97,7 @@ If Hermes host isolation hides the plugin CLI tree, use `python /path/to/timelin
 
 ## Timing and video style
 
-The selected duration is replay time plus a closing card: **4 seconds for Social and Orbit**, **6 for Balanced**, **8 for Linear**. Desktop defaults to a 30-second Social replay, producing a 34-second export. Shorter 15-second and longer 60-second choices are available; CLI/tool callers can choose 10–180 seconds.
+The selected duration is replay time plus a closing card: **4 seconds for Social, Orbit, Galaxy and Skyline**, **6 for Balanced**, **8 for Linear**. Desktop defaults to a 30-second Social replay, producing a 34-second export. Shorter 15-second and longer 60-second choices are available; CLI/tool callers can choose 10–180 seconds.
 
 By default every pace stacks up to 16 profile/session lanes on one screen (see [Lanes per screen](#lanes-per-screen)); chapters appear only beyond that, or with the 4-lane setting. Every chapter replays the full selected time interval for its visible lanes. Above 32 distinct sessions, lanes group by profile with a visible coverage note; events remain in the data. The hub is an **event aggregation visualization**, not a claim that one agent supervised every other agent. Delegation links appear only when matching recorded parent/child IDs are visible.
 
@@ -128,6 +128,13 @@ Every pace stacks every profile on one screen (up to 16) in a compact layout. So
 - **Ray length** comes from the data, ranked within this replay: the event's token count when recorded; otherwise its duration (tool calls usually have no tokens); otherwise the average length with slight jitter. The footer states this.
 - **Scale:** above 3,600 events, one ray stands for several events (the footer says how many); counters and panels always count every event.
 - **Rendering:** one canvas drawn purely from replay time, through the player's seek and HyperFrames' `hf-seek`. Geometry is seeded from event IDs, so every render of the same replay is identical. The camera sways and rolls slightly on fixed cycles.
+
+## Galaxy and Skyline
+
+Both use Social's compressed-gap timing, show all selected profiles on one screen, and share Orbit's side panel (live counters and per-profile counts).
+
+- **Galaxy** (`--pace galaxy`): a tilted, slowly turning spiral. Each profile is an arm; stars are its events placed along the arm in order, so the galaxy grows outward as the replay plays. Star size follows tokens, else duration, else the average. New stars flash; delegations draw a brief arc from the core; errors are red. Above 6,000 events one star stands for several (the footer says how many).
+- **Skyline** (`--pace skyline`): an isometric city. Each row is a profile and each block a time slice of the replay; a building grows with every event in its slice and flashes when one arrives. Window lights take the colour of the slice's most-used model (legend in the side panel).
 
 ## Video export performance and host sizing
 

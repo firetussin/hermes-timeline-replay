@@ -489,7 +489,7 @@ class ReplayTests(unittest.TestCase):
         ns=service.parser().parse_args(['build','--all-time'])
         self.assertTrue(ns.all_time)
         self.assertEqual(ns.seconds,30)
-        for pace in ('social','balanced','linear','orbit'):
+        for pace in ('social','balanced','linear','orbit','galaxy','skyline'):
             result=service.run(dict(action='demo',pace=pace,timezone='UTC',seconds=30),self.home)
             self.assertEqual(result['duration'],30)  # requested length is the whole video
         orbit=service.run(dict(action='demo',pace='orbit',timezone='UTC',seconds=30),self.home)
