@@ -278,7 +278,13 @@ def _stream(argv, cwd, env, log, on_text, stdout=None, timeout=3600):
 STATS = "render-stats.json"
 
 
-def _record_stats(home_dir, video_seconds, wall_seconds, check_seconds=None, events=None, workers=None, screen_lanes=None, height=None):
+def family_of(pace):
+    """Canvas paces check far faster than lane paces (one canvas against thousands of elements)."""
+    from .canvas_views import CANVAS_PACES
+    return "canvas" if pace in CANVAS_PACES else "lanes"
+
+
+def _record_stats(home_dir, video_seconds, wall_seconds, check_seconds=None, events=None, workers=None, screen_lanes=None, height=None, family=None):
     path = Path(home_dir) / STATS
     try:
         rows = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else []
@@ -294,6 +300,8 @@ def _record_stats(home_dir, video_seconds, wall_seconds, check_seconds=None, eve
     if height:
         row["height"] = int(height)
     row["layout"] = LAYOUT
+    if family:
+        row["family"] = family
     # Keep enough history that a run of small test exports doesn't evict the large ones.
     rows = (rows + [row])[-50:]
     try:
@@ -307,12 +315,12 @@ def _record_stats(home_dir, video_seconds, wall_seconds, check_seconds=None, eve
 LAYOUT = 2
 
 
-def _check_rows(all_rows, workers, screen_lanes):
+def _check_rows(all_rows, workers, screen_lanes, family=None):
     """Rows to learn layout-check time from, narrowed step by step to the most comparable
     exports: current layout, same worker count, same lane-density band. A step that would
     leave nothing is skipped."""
     rows = [r for r in all_rows if r.get("events") and r.get("check")]
-    keeps = [lambda r: r.get("layout") == LAYOUT, lambda r: r.get("workers", 1) == workers]
+    keeps = [lambda r: r.get("family", "lanes") == (family or "lanes"), lambda r: r.get("layout") == LAYOUT, lambda r: r.get("workers", 1) == workers]
     if screen_lanes:
         keeps.append(lambda r: lanes_band(r.get("screen_lanes")) == lanes_band(screen_lanes))
     for keep in keeps:
@@ -325,7 +333,7 @@ def lanes_band(n):
     return 0 if not n else 1 if n <= 4 else 2 if n <= 8 else 3
 
 
-def estimate(video_seconds, home=None, events=None, workers=None, screen_lanes=None, height=None):
+def estimate(video_seconds, home=None, events=None, workers=None, screen_lanes=None, height=None, family=None):
     """Wall-clock estimate learned from this host's completed exports; None before the first one.
     The layout check scales with event count and encoding with video length, so when
     both were recorded they are estimated separately."""
@@ -340,6 +348,8 @@ def estimate(video_seconds, home=None, events=None, workers=None, screen_lanes=N
     all_rows = rows
     workers = workers or render_workers(home)
     # Encoding speed depends on the worker count; prefer exports made with the same count.
+    # Lane and canvas paces check at very different speeds; prefer the same family when known.
+    rows = [r for r in rows if r.get("family", "lanes") == (family or "lanes")] or rows
     same = [r for r in rows if r.get("workers", 1) == workers]
     rows = same or rows
     if height:
@@ -356,7 +366,7 @@ def estimate(video_seconds, home=None, events=None, workers=None, screen_lanes=N
         dense = [r for r in rows if lanes_band(r.get("screen_lanes")) == lanes_band(screen_lanes)]
         rows = dense or rows
     split = [r for r in rows if r.get("events") and r.get("check") is not None]
-    checks = _check_rows(all_rows, workers, screen_lanes)
+    checks = _check_rows(all_rows, workers, screen_lanes, family)
     basis = f"{len(rows)} previous export(s) on this host"
     if events and split and checks:
         check = check_time(checks, events)
@@ -435,7 +445,8 @@ def start(bundle, home=None):
         raise ValueError(_busy_message(home))
     with _lock:
         from .version import VERSION, API
-        job = dict(id=bundle, state="running", pid=os.getpid(), started=time.time(), stage="checking", version=VERSION, api=API)
+        from .dependencies import hyperframes_version
+        job = dict(id=bundle, state="running", pid=os.getpid(), started=time.time(), stage="checking", version=VERSION, api=API, hyperframes=hyperframes_version(home))
         try:
             info = json.loads((path / "bundle.json").read_text())
             job.update(title=info.get("title"), created=info.get("created"), resolution=info.get("resolution", "1080p"))
@@ -466,7 +477,7 @@ def _worker(bundle, path, command, job, process_lock):
         job["workers"] = workers
         try:
             bundle_info = json.loads((path / "bundle.json").read_text())
-            plan = estimate(bundle_info["duration"], path.parents[3], events=bundle_info["totals"]["events"], workers=workers, screen_lanes=bundle_info.get("screen_lanes"), height=bundle_info.get("height")) or {}
+            plan = estimate(bundle_info["duration"], path.parents[3], events=bundle_info["totals"]["events"], workers=workers, screen_lanes=bundle_info.get("screen_lanes"), height=bundle_info.get("height"), family=family_of(bundle_info.get("pace"))) or {}
         except (OSError, ValueError, KeyError):
             plan = {}
         progress, write_lock, last = {}, threading.Lock(), [0.0]
@@ -548,10 +559,10 @@ def _worker(bundle, path, command, job, process_lock):
         job.pop("progress", None)
         try:
             info = json.loads((path / "bundle.json").read_text())
-            events, screen_lanes, height = info["totals"]["events"], info.get("screen_lanes"), info.get("height")
+            events, screen_lanes, height, family = info["totals"]["events"], info.get("screen_lanes"), info.get("height"), family_of(info.get("pace"))
         except (OSError, ValueError, KeyError):
-            events = screen_lanes = height = None
-        _record_stats(path.parent.parent, float(meta["format"]["duration"]), time.monotonic()-began, check_seconds, events, workers, screen_lanes, height)
+            events = screen_lanes = height = family = None
+        _record_stats(path.parent.parent, float(meta["format"]["duration"]), time.monotonic()-began, check_seconds, events, workers, screen_lanes, height, family)
     except Exception as exc:
         detail = str(exc) if isinstance(exc, (RuntimeError, ValueError)) else "render/check failed; inspect the local render.log"
         job.update(state="failed", error=type(exc).__name__+": "+detail)

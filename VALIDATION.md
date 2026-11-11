@@ -1,3 +1,10 @@
+# Timeline Replay 0.5.0 — November 11, 2026
+
+Six more canvas styles, Style/Pacing picker, both-part updates, HyperFrames version check, per-family estimates, Skyline reframed.
+
+- **CT114 real data, 0.4.0** (HOST8; 6 cores, 12 GiB, 3 workers): Orbit all-time 60 s 1080p 274 s (check 123, render 148); Galaxy all-time 60 s 237 s (101/133); Skyline 7 days 30 s 44 s (8/36). Social on the same data: 372 s and 100 s. All verified by ffprobe, gate 0 errors. HOST8's contact sheet showed a Skyline framing defect (city in the left/centre, detached row labels), fixed in 0.5.0.
+- **Development PC, 0.5.0:** 49 Python tests pass in repeated runs; the Desktop harness covers the Style picker and both-part update link; the seek harness passes for Social, multi-profile and all canvas styles; lane visibility passes. HyperFrames check, 0 errors and 0 runtime and lint warnings (2 known craft warnings): all 12 paces at 1.1k events 1080p; river, pulse, clock, neural, rain, ridgelines and skyline at 20k events; neural, river and skyline at 4K. Frame draw at 20k events: 2–6 ms for the new styles. Not yet measured: the six new styles and the reframed Skyline rendered on CT114 with real data.
+
 # Timeline Replay 0.4.0 — November 11, 2026
 
 Galaxy and Skyline paces. Development PC: 47 Python tests pass; 1 failure in about 25 repeated runs, not reproduced in 12 runs under parallel render load and not captured (the earlier clock-patching flake is fixed, so this is a different, unidentified test). The Desktop, seek (Social, multi-profile, Orbit, Galaxy, Skyline) and lane-visibility harnesses pass. HyperFrames check: 0 errors, 0 runtime warnings, 0 lint warnings (2 known craft warnings) for Social, Orbit, Galaxy and Skyline at 1.1k events, Galaxy and Skyline at 20k events, Skyline at 8k, and Galaxy and Skyline at 4K. The composition sits about 3 lines under HyperFrames' 300-line lint threshold, so 0.5.0 must ship per-pace code. Frame draw time at 20k events in headless Chromium: Galaxy about 4 ms, Skyline about 2 ms. Not yet measured: Galaxy and Skyline MP4s rendered on CT114 with real data.

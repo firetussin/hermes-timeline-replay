@@ -80,15 +80,19 @@ def inspect(home=None):
         cli_ok = True
     except ValueError:
         cli_ok = False
+    hf_version = hyperframes_version(home) if cli_ok else None
     browser = browser_path(home)
     items = [
         dict(id="node", label="Node.js 22+", ready=node_ok, detail=node_version),
-        dict(id="hyperframes", label="HyperFrames", ready=cli_ok, detail="Configured" if cli_ok else "Not configured"),
+        dict(id="hyperframes", label="HyperFrames", ready=cli_ok, detail=(f"{hf_version} (tested: {VERSION})" if hf_version and hf_version != VERSION else hf_version or "Configured") if cli_ok else "Not configured"),
         dict(id="ffmpeg", label="FFmpeg", ready=bool(shutil.which("ffmpeg")), detail="On PATH" if shutil.which("ffmpeg") else "Not found"),
         dict(id="ffprobe", label="ffprobe", ready=bool(shutil.which("ffprobe")), detail="On PATH" if shutil.which("ffprobe") else "Not found"),
         dict(id="browser", label="Chrome / Chromium", ready=bool(browser), detail="Detected" if browser else "Choose an installed browser or complete setup"),
     ]
-    return dict(ready=all(x["ready"] for x in items), items=items, performance=performance_notes(), host=host_notes(home),
+    notes = performance_notes()
+    if hf_version and hf_version != VERSION:
+        notes.append(f"HyperFrames {hf_version} is installed; Timeline Replay is tested with {VERSION}. Exports should still work, but timings, progress and checks may differ.")
+    return dict(ready=all(x["ready"] for x in items), items=items, performance=notes, host=host_notes(home), hyperframes=hf_version,
                 note="HTML previews need none of these. Status checks never download software.")
 
 
@@ -120,6 +124,28 @@ def memory_total_mb():
         except (AttributeError, ValueError, OSError):
             return None
     return total
+
+
+_HF_VERSIONS = {}
+
+
+def hyperframes_version(home=None):
+    """The configured HyperFrames CLI's version (read-only `--version`), cached per command; None when unknown."""
+    from .rendering import renderer_command
+    try:
+        command = tuple(renderer_command(home))
+    except ValueError:
+        return None
+    if command not in _HF_VERSIONS:
+        try:
+            r = subprocess.run([*command, "--version"], capture_output=True, text=True, timeout=20, check=True,
+                               env={**{k: os.environ[k] for k in ("PATH", "HOME", "USERPROFILE", "LOCALAPPDATA", "APPDATA", "TEMP", "TMP", "SystemRoot", "WINDIR", "LANG") if k in os.environ},
+                                    "HYPERFRAMES_NO_TELEMETRY": "1", "HYPERFRAMES_NO_UPDATE_CHECK": "1", "DO_NOT_TRACK": "1"})
+            text = (r.stdout or "").strip().splitlines()
+            _HF_VERSIONS[command] = text[-1].strip().lstrip("v") if text else None
+        except (OSError, subprocess.SubprocessError):
+            _HF_VERSIONS[command] = None
+    return _HF_VERSIONS[command]
 
 
 def host_notes(home=None):

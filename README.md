@@ -1,23 +1,30 @@
-# Timeline Replay 0.4.0
+# Timeline Replay 0.5.0
 
 Animated replays of recorded Hermes activity across explicitly selected profiles and agents. Build private HTML, preview it inside Hermes Desktop, and render the same artwork to MP4 on the connected Hermes host.
 
 ## What it does
 
-- **Six paces.** *Social* is energetic: a profile-card hub, signal packets, sparks, milestone pops, and quiet gaps compressed on the axis. *Balanced* has gentler emphasis. *Linear* runs on evenly spaced real time. Those three stack up to 16 profiles on one screen in a compact layout; "4 lanes per screen" brings back chapters. *Orbit*, *Galaxy* and *Skyline* draw the same activity as a turning 3D ring, a spiral galaxy and an isometric city (see [Orbit](#orbit) and [Galaxy and Skyline](#galaxy-and-skyline)).
+- **Ten styles.** *Timeline* shows profile lanes with three paces: *Social* is energetic (a profile-card hub, signal packets, sparks, milestone pops, and quiet gaps compressed on the axis), *Balanced* has gentler emphasis, and *Linear* runs on evenly spaced real time; up to 16 profiles stack on one screen, and "4 lanes per screen" brings back chapters. Nine canvas styles draw the same activity differently: *Orbit*, *Galaxy*, *Skyline*, *Flow river*, *Pulse*, *Day clock*, *Neural net*, *Code rain* and *Ridgelines* (see [Orbit](#orbit) and [More styles](#galaxy-and-skyline)).
 - **Orbit.** Every recorded event shoots out of a tilted, slowly turning torus as a ray, in its profile's colour, when the replay reaches its real time. A callout follows the newest notable event, and live counters, per-profile counts, an activity line, model share and a token stream run beside it.
 - **Real metadata only.** Tool calls, sessions, delegations, model/provider switches and token totals come from Hermes hooks and saved session history. Transcripts, arguments and results are never captured, and unknown outcomes are never shown as success.
 - **Preview anywhere.** Desktop and the Webapp show the same animated HTML; the Webapp goes through the SDK guest frame. Loop or play once.
 - **Video on the Hermes host.** HyperFrames renders the MP4 at 720p, 1080p, 1440p or 4K. Exports show live progress with an ETA learned on that host. Watch or download finished videos in the page.
 - **Settings → Plugins → Timeline Replay** holds per-user defaults. The CLI (`hermes replay …`) has the same options plus a live terminal HUD.
 
-See [CHANGELOG.md](CHANGELOG.md) for each release, from 0.2.1 to 0.4.0.
+See [CHANGELOG.md](CHANGELOG.md) for each release, from 0.2.1 to 0.5.0.
 
 Open [the animated sample](demo/replay.html), [the restrained Linear sample](demo/linear.html), or [the Desktop design preview](demo/desktop-preview.html). The design preview uses a mocked Hermes SDK, not a connection to a real profile. It includes dark/light theme switches; the plugin itself uses the app's actual SDK components.
 
 ## Keeping Desktop in step with a remote host
 
-With a remote Hermes host, the plugin has two halves: the agent half on the host and a Desktop copy on each computer that connects to it. Updating the host (for example `hermes plugins install firetussin/hermes-timeline-replay --ref <sha> --force`) does not update those copies. When the host is newer, the page says so and offers **Update Desktop page**, which opens Hermes' install dialog with only the Desktop part selected. If the link can't open, use **Capabilities → Plugins → Install from Git**, enter `firetussin/hermes-timeline-replay` and check only Desktop. Releases that change only the host side don't need it; [CHANGELOG.md](CHANGELOG.md) says which kind each release is.
+With a remote Hermes host, the plugin has two halves: the agent half on the host and a Desktop copy on each computer that connects to it. Each is updated separately, and nothing updates on its own.
+
+- **Update both at once:** **Capabilities → Plugins → Install from Git**, enter `firetussin/hermes-timeline-replay`, keep both parts checked and replace the existing install. Then restart the gateway on the host: `hermes gateway restart` (without `-y` it waits for running work to finish). The host keeps running the old code until that restart.
+- **From the page:** when the host and this page differ, the page shows both versions and **Update Timeline Replay**, which opens that same Hermes dialog for both parts; nothing installs until you confirm. Restart the gateway afterwards.
+- **Pinned, on the host:** `hermes plugins install firetussin/hermes-timeline-replay --ref <sha> --force --enable`, then the restart, then update the Desktop page from the page.
+- **Webapp:** after a host-side update, reload the Webapp (or Rescan in Capabilities → Plugins) so it picks up the new page.
+
+[CHANGELOG.md](CHANGELOG.md) says for each release whether the Desktop page changed.
 
 ## Upgrade from 0.1.0
 
@@ -131,10 +138,21 @@ Every pace stacks every profile on one screen (up to 16) in a compact layout. So
 
 ## Galaxy and Skyline
 
-Both use Social's compressed-gap timing, show all selected profiles on one screen, and share Orbit's side panel (live counters and per-profile counts).
+These and the styles below use Social's compressed-gap timing, show all selected profiles on one screen, and share Orbit's side panel (live counters and per-profile counts). In the page, pick them under **Style**; on the CLI use `--pace <name>`. Each export carries only its own style's code.
 
 - **Galaxy** (`--pace galaxy`): a tilted, slowly turning spiral. Each profile is an arm; stars are its events placed along the arm in order, so the galaxy grows outward as the replay plays. Star size follows tokens, else duration, else the average. New stars flash; delegations draw a brief arc from the core; errors are red. Above 6,000 events one star stands for several (the footer says how many).
 - **Skyline** (`--pace skyline`): an isometric city. Each row is a profile and each block a time slice of the replay; a building grows with every event in its slice and flashes when one arrives. Window lights take the colour of the slice's most-used model (legend in the side panel).
+
+### More styles (0.5.0)
+
+- **Flow river** (`--pace river`): profiles flow into models and on into tools. Ribbon width is events so far; every new event travels its path as a particle (red for errors). Tool calls take their session's model.
+- **Pulse** (`--pace pulse`): a heart-monitor trace per profile. Every event is a beat sized by tokens, else duration; errors beat downward; each row shows its current rate.
+- **Day clock** (`--pace clock`): a 24-hour face in the replay's timezone with one ring per profile (innermost = first in the list). Events sit at their time of day, later days further out; the hand follows the replay.
+- **Neural net** (`--pace neural`): sessions around the outside, grouped by profile; tools (blue) and models (gold) inside. Each event fires a pulse along its connection and lights the node it reaches.
+- **Code rain** (`--pace rain`): each event falls down its profile's column spelling its tool or model name, then lands on that profile's pile.
+- **Ridgelines** (`--pace ridgelines`): one ridge of activity over replay time per profile, drawn left to right as the replay plays.
+
+Large replays are capped where drawing every event would be too slow (Day clock: one dot per several events above 6,000; Code rain: the 40 newest streams per column); the footer says so, and counters always count every event.
 
 ## Video export performance and host sizing
 
@@ -228,7 +246,8 @@ What the plugin does on the Hermes host, in one place:
 - **Local processes:** only when the user asks to render. It then runs the preinstalled HyperFrames CLI (Node.js), which drives Chromium/chrome-headless-shell, plus FFmpeg/ffprobe as argument-list subprocesses with a limited environment (no provider or bot credentials). A render runs as a background thread in the gateway process until it finishes.
 - **Network:** the plugin makes no network calls and has no telemetry. It sets `HYPERFRAMES_NO_TELEMETRY`, `HYPERFRAMES_NO_UPDATE_CHECK` and `DO_NOT_TRACK` for the renderer.
 - **Installs:** none. Video setup only drafts a chat request listing the missing tools for the user to review and send; nothing is downloaded or installed by the plugin.
-- **Desktop page updates:** when this computer's Desktop page is older than the plugin on the Hermes host, the page shows a notice with **Update Desktop page**. It opens Hermes' own Desktop-only install link (`hermes://plugin-desktop/install?repo=firetussin/hermes-timeline-replay&force=1`); Hermes shows its install dialog and installs nothing until you confirm. The plugin never downloads or replaces its own files.
+- **Updates:** when this computer's Desktop page and the plugin on the Hermes host differ, the page shows both versions and **Update Timeline Replay**. It opens Hermes' own install link (`hermes://plugin/install?repo=firetussin/hermes-timeline-replay&force=1`); Hermes shows its install dialog and installs nothing until you confirm. The plugin never checks for updates online and never downloads or replaces its own files.
+- **Version check:** readiness runs the configured HyperFrames CLI with `--version` (same limited environment as renders) and notes when it isn't the tested version.
 - **Credentials:** none read, stored or required.
 - **Desktop:** SDK surface only (routes, sidebar nav, settings page, `SandboxedFrame`, `MessageTextContent` for the MEDIA player, `captureGatewayFileDownload`). There are no core overrides and no reaching into app markup.
 
@@ -264,6 +283,7 @@ See [VALIDATION.md](VALIDATION.md) for measured checks per release. MP4 encoding
 
 ## Troubleshooting
 
+- **The host still runs the old version after an update.** The gateway loads plugin code at start-up; run `hermes gateway restart` on the host. If `hermes plugins list` still shows the old version, only the Desktop part was updated: install the host part too (see [Keeping Desktop in step](#keeping-desktop-in-step-with-a-remote-host)).
 - **The page doesn't appear in the Webapp (or stays on an old version).** Hermes installs each plugin's page into `<HERMES_HOME>/desktop-plugins/`. If that folder was created by another user (for example root during an unrelated setup), Hermes can't write it and only logs `Permission denied … .timeline-replay.staging-*`. `hermes replay dependencies` and Settings → About show a *Host setup* note when this happens. Fix it by making the folder owned by the user Hermes runs as (`chown <user>:<user> <HERMES_HOME>/desktop-plugins`); Hermes then installs the page within seconds.
 - **Desktop shows an older page than the host.** See [Keeping Desktop in step with a remote host](#keeping-desktop-in-step-with-a-remote-host).
 

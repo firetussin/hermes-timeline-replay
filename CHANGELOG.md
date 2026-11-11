@@ -1,5 +1,18 @@
 # Changes
 
+## 0.5.0 — November 11, 2026
+
+Update both parts: the Hermes host (then `hermes gateway restart`) and the Desktop page.
+
+- **Six more styles:** Flow river, Pulse, Day clock, Neural net, Code rain and Ridgelines, joining Orbit, Galaxy and Skyline. All draw on one canvas from replay time, use Social's timing, share the side panel, and cap drawing on very large replays (the footer says when).
+- **Style and Pacing:** the page and Settings pick a **Style** (Timeline or one of nine canvas styles) and, for Timeline, a **Pacing** (Social, Balanced, Linear). The CLI and tool keep the single `--pace` option, so existing commands and saved defaults keep working.
+- **Smaller exports:** each export carries only its own style's code (new `canvas_views.py`), which keeps compositions well under HyperFrames' 300-line lint threshold.
+- **Updates:** when the host and this page differ, **Update Timeline Replay** opens Hermes' install dialog for both parts (it was Desktop-only, so a host could stay behind), and the notice says to run `hermes gateway restart`. The "restart required" notice names that command too.
+- **HyperFrames version:** readiness shows the version of the configured HyperFrames CLI and notes when it isn't the tested 0.9.23; each export job records it.
+- **Estimates:** render-time learning keeps canvas styles apart from lane paces (Orbit's real check took 123 s where lane paces of the same size take ~234 s).
+- **Skyline reframed:** on real data (HOST8, CT114) the city sat in the left/centre with its row labels detached at the far end. The board now fills the space beside the side panel, the ground grid is visible, and each row's label sits at the start of its row on a dark backing.
+- **README:** update steps for remote hosts (both parts, restart, Webapp reload), new styles, troubleshooting.
+
 ## 0.4.0 — November 11, 2026
 
 Update the Desktop page too (it changed); on a remote host, the page's **Update Desktop page** button does this.

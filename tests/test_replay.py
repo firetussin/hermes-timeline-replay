@@ -437,6 +437,35 @@ class ReplayTests(unittest.TestCase):
         self.assertAlmostEqual(rendering.estimate(34, self.home, events=1118, workers=3, screen_lanes=7, height=1080)['check_seconds'], 53, delta=2)
         self.assertGreater(rendering.estimate(64, self.home, events=50000, workers=3, screen_lanes=11, height=1080)['check_seconds'], 235)
 
+    def test_estimate_keeps_canvas_and_lane_checks_apart(self):
+        # CT114, 0.4.0: Orbit's real check took 123 s where lane paces of the same size take ~234 s.
+        lanes = [dict(video=64, wall=370, check=234.0, events=23277, workers=3, screen_lanes=11, height=1080, layout=2, at=1),
+                 dict(video=64, wall=371, check=235.0, events=23277, workers=3, screen_lanes=11, height=1080, layout=2, at=2)]
+        canvas = [dict(video=64, wall=251, check=123.0, events=23359, workers=3, screen_lanes=11, height=1080, layout=2, family='canvas', at=3)]
+        folder = rendering.data_dir(self.home); folder.mkdir(parents=True, exist_ok=True)
+        (folder/'render-stats.json').write_text(json.dumps(lanes + canvas))
+        c = rendering.estimate(64, self.home, events=23300, workers=3, screen_lanes=11, height=1080, family='canvas')
+        l = rendering.estimate(64, self.home, events=23300, workers=3, screen_lanes=11, height=1080, family='lanes')
+        self.assertAlmostEqual(c['check_seconds'], 123, delta=3)
+        self.assertAlmostEqual(l['check_seconds'], 234, delta=3)
+        self.assertEqual(rendering.family_of('galaxy'), 'canvas')
+        self.assertEqual(rendering.family_of('social'), 'lanes')
+
+    def test_hyperframes_version_is_reported_and_mismatch_noted(self):
+        deps = sys.modules['timeline_test.dependencies']
+        deps._HF_VERSIONS.clear()
+        class Done:
+            stdout = 'hyperframes\n0.9.34\n'
+        with patch('timeline_test.rendering.renderer_command', return_value=['node', 'hyperframes.mjs']), \
+             patch('timeline_test.dependencies.subprocess.run', return_value=Done()):
+            self.assertEqual(deps.hyperframes_version(self.home), '0.9.34')
+            report = deps.inspect(self.home)
+        deps._HF_VERSIONS.clear()
+        self.assertEqual(report['hyperframes'], '0.9.34')
+        hf = next(i for i in report['items'] if i['id'] == 'hyperframes')
+        self.assertIn('tested: ' + deps.VERSION, hf['detail'])
+        self.assertTrue(any('HyperFrames 0.9.34 is installed' in n for n in report['performance']))
+
     def test_new_stats_rows_record_layout(self):
         folder = rendering.data_dir(self.home); folder.mkdir(parents=True, exist_ok=True)
         rendering._record_stats(folder, 34, 100, 50, 1118, 3, 7, 1080)
@@ -489,7 +518,7 @@ class ReplayTests(unittest.TestCase):
         ns=service.parser().parse_args(['build','--all-time'])
         self.assertTrue(ns.all_time)
         self.assertEqual(ns.seconds,30)
-        for pace in ('social','balanced','linear','orbit','galaxy','skyline'):
+        for pace in sys.modules['timeline_test.canvas_views'].PACES:
             result=service.run(dict(action='demo',pace=pace,timezone='UTC',seconds=30),self.home)
             self.assertEqual(result['duration'],30)  # requested length is the whole video
         orbit=service.run(dict(action='demo',pace='orbit',timezone='UTC',seconds=30),self.home)
