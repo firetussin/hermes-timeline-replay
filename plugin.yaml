@@ -1,0 +1,28 @@
+name: timeline-replay
+version: "0.2.16"
+requires_hermes: ">=0.23.0"
+description: >-
+  Private animated activity replays across selected Hermes profiles and agents.
+  Captures metadata only, reads selected session databases read-only, writes HTML
+  and render projects in plugin-data. Optional video export runs the operator's
+  preinstalled HyperFrames CLI and FFmpeg locally; never downloads dependencies.
+provides_tools:
+  - timeline_replay
+provides_hooks:
+  - on_session_start
+  - on_session_end
+  - pre_llm_call
+  - post_llm_call
+  - post_tool_call
+  - post_api_request
+  - subagent_start
+  - subagent_stop
+config_schema:
+  capture:
+    type: boolean
+    default: true
+    description: Record metadata only while this plugin is enabled.
+  profile_label:
+    type: string
+    default: ""
+    description: Optional public display label for the current profile.

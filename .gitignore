@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.test-home/
+.doctor-home/
+demo/.hyperframes/
+demo/check-progress.log
+demo/check.json
+test-output/
+
+demo/check*.json
+demo/check-progress*.log
+*.log
