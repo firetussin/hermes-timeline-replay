@@ -1,5 +1,5 @@
 name: timeline-replay
-version: "0.2.18"
+version: "0.3.0"
 requires_hermes: ">=0.23.0"
 description: >-
   Private animated activity replays across selected Hermes profiles and agents.

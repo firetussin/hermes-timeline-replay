@@ -1,5 +1,14 @@
 # Changes
 
+## 0.3.0 — November 11, 2026
+
+Update the Desktop page too (it changed). On a remote host, the page's **Update Desktop page** button does this.
+
+- **New pace: Orbit.** A turning 3D ring: each profile owns a colour sector of a flattened torus; every event shoots out as a ray when the replay reaches its real time, outward only (tilted up to ~40° above or below the ring, never into the centre), with ray length ranked by tokens, else duration, else the average. The camera sways and rolls slightly. Beside it: live counters, per-profile live counts, an activity line, model share, a callout on the newest notable event, and a token stream by profile. One canvas drawn purely from replay time (player seek and HyperFrames `hf-seek`); up to 3,600 rays, one per several events above that. Choose it under Pacing, in Settings → Playback, or with `--pace orbit`.
+- **Host setup check:** `hermes replay dependencies` and Settings → About warn when `<HERMES_HOME>/desktop-plugins` isn't writable by Hermes (CT114 had it root-owned, so the Webapp page silently failed to install). README has a Troubleshooting section.
+- **Tests:** the render-ETA test no longer patches the global clock (it failed intermittently under load); the seek harness is pace-aware; Orbit builds are covered.
+- **README:** Orbit section, Troubleshooting, and a credit for the visualization that inspired Orbit.
+
 ## 0.2.18 — November 11, 2026
 
 Update the Desktop page too (it changed).

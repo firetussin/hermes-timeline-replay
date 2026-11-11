@@ -1,3 +1,7 @@
+# Timeline Replay 0.3.0 — November 11, 2026
+
+Orbit pace, host setup check, test fixes. Development PC: 47 Python tests pass in repeated runs (the clock-patching test no longer fails under load). The Desktop harness (version notice with a 9.9.9 host), the seek harness (Social, multi-profile and Orbit replays) and the lane-visibility check pass. HyperFrames check (0 errors, 0 runtime warnings; 2 known craft warnings) on Orbit at 1.1k events (1080p and 4K), 8k events and 20k events (1080p), and on Social 1080p. HyperFrames snapshot confirms the Orbit canvas draws in the export path. Orbit draws a frame in about 13 ms at 20k events in headless Chromium. Not yet measured: an Orbit MP4 rendered on CT114 with real data.
+
 # Timeline Replay 0.2.18 — November 11, 2026
 
 Desktop/host version notice with an Update Desktop page button (Hermes' Desktop-only install link); composition code is unchanged. Development PC: 46 Python tests pass. The Desktop harness now also covers the notice: the link opened, the fallback with copy-link when it can't open, no button when the page is newer, and no install request from the plugin. The seek and lane-visibility harnesses pass. HyperFrames check on the medium Social 1080p stress fixture: 0 errors, 0 runtime warnings, 2 known craft warnings. The Desktop button itself needs a check in a real Desktop connected to a remote host.

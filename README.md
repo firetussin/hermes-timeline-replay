@@ -1,16 +1,17 @@
-# Timeline Replay 0.2.18
+# Timeline Replay 0.3.0
 
 Animated replays of recorded Hermes activity across explicitly selected profiles and agents. Build private HTML, preview it inside Hermes Desktop, and render the same artwork to MP4 on the connected Hermes host.
 
 ## What it does
 
-- **Three paces.** *Social* is energetic: a profile-card hub, signal packets, sparks, milestone pops, and quiet gaps compressed on the axis. *Balanced* has gentler emphasis. *Linear* runs on evenly spaced real time. Every pace stacks up to 16 profiles on one screen in a compact layout; "4 lanes per screen" brings back chapters.
+- **Four paces.** *Social* is energetic: a profile-card hub, signal packets, sparks, milestone pops, and quiet gaps compressed on the axis. *Balanced* has gentler emphasis. *Linear* runs on evenly spaced real time. Those three stack up to 16 profiles on one screen in a compact layout; "4 lanes per screen" brings back chapters. *Orbit* draws the same activity as a turning 3D ring (see [Orbit](#orbit)).
+- **Orbit.** Every recorded event shoots out of a tilted, slowly turning torus as a ray, in its profile's colour, when the replay reaches its real time. A callout follows the newest notable event, and live counters, per-profile counts, an activity line, model share and a token stream run beside it.
 - **Real metadata only.** Tool calls, sessions, delegations, model/provider switches and token totals come from Hermes hooks and saved session history. Transcripts, arguments and results are never captured, and unknown outcomes are never shown as success.
 - **Preview anywhere.** Desktop and the Webapp show the same animated HTML; the Webapp goes through the SDK guest frame. Loop or play once.
 - **Video on the Hermes host.** HyperFrames renders the MP4 at 720p, 1080p, 1440p or 4K. Exports show live progress with an ETA learned on that host. Watch or download finished videos in the page.
 - **Settings → Plugins → Timeline Replay** holds per-user defaults. The CLI (`hermes replay …`) has the same options plus a live terminal HUD.
 
-See [CHANGELOG.md](CHANGELOG.md) for each release, from 0.2.1 to 0.2.18.
+See [CHANGELOG.md](CHANGELOG.md) for each release, from 0.2.1 to 0.3.0.
 
 Open [the animated sample](demo/replay.html), [the restrained Linear sample](demo/linear.html), or [the Desktop design preview](demo/desktop-preview.html). The design preview uses a mocked Hermes SDK, not a connection to a real profile. It includes dark/light theme switches; the plugin itself uses the app's actual SDK components.
 
@@ -96,7 +97,7 @@ If Hermes host isolation hides the plugin CLI tree, use `python /path/to/timelin
 
 ## Timing and video style
 
-The selected duration is replay time plus a closing card: **4 seconds for Social**, **6 for Balanced**, **8 for Linear**. Desktop defaults to a 30-second Social replay, producing a 34-second export. Shorter 15-second and longer 60-second choices are available; CLI/tool callers can choose 10–180 seconds.
+The selected duration is replay time plus a closing card: **4 seconds for Social and Orbit**, **6 for Balanced**, **8 for Linear**. Desktop defaults to a 30-second Social replay, producing a 34-second export. Shorter 15-second and longer 60-second choices are available; CLI/tool callers can choose 10–180 seconds.
 
 By default every pace stacks up to 16 profile/session lanes on one screen (see [Lanes per screen](#lanes-per-screen)); chapters appear only beyond that, or with the 4-lane setting. Every chapter replays the full selected time interval for its visible lanes. Above 32 distinct sessions, lanes group by profile with a visible coverage note; events remain in the data. The hub is an **event aggregation visualization**, not a claim that one agent supervised every other agent. Delegation links appear only when matching recorded parent/child IDs are visible.
 
@@ -117,6 +118,16 @@ The main page starts from them. The CLI has matching flags: `--resolution 720p|1
 ## Lanes per screen
 
 Every pace stacks every profile on one screen (up to 16) in a compact layout. Social adds a signal band with the four most active profiles as cards around the hub. **Auto** (the default) and **All** stack; **4** brings back four profiles per chapter, where the timeline replays once per chapter. CLI: `--lanes auto|4|all`.
+
+## Orbit
+
+*Orbit* (`--pace orbit`, or Pacing → Orbit) shows all selected profiles in one ring, with no chapters, and the same compressed-gap timing as Social.
+
+- **Sectors:** each profile owns a colour sector, sized by the square root of its activity so quiet profiles stay visible. Its part of the torus brightens as its events arrive.
+- **Rays:** one per event. Rays root on the outer half of the torus and point outward, tilted up to about 40° above or below the ring, never into the centre. When an event fires, its ray shoots a little past full length and settles.
+- **Ray length** comes from the data, ranked within this replay: the event's token count when recorded; otherwise its duration (tool calls usually have no tokens); otherwise the average length with slight jitter. The footer states this.
+- **Scale:** above 3,600 events, one ray stands for several events (the footer says how many); counters and panels always count every event.
+- **Rendering:** one canvas drawn purely from replay time, through the player's seek and HyperFrames' `hf-seek`. Geometry is seeded from event IDs, so every render of the same replay is identical. The camera sways and rolls slightly on fixed cycles.
 
 ## Video export performance and host sizing
 
@@ -244,11 +255,17 @@ node tests/lanes_visible_check.mjs PUPPETEER_CORE_ENTRY CHROMIUM OUT_DIR/index.h
 
 See [VALIDATION.md](VALIDATION.md) for measured checks per release. MP4 encoding is verified on the Hermes host, not on the development PC.
 
+## Troubleshooting
+
+- **The page doesn't appear in the Webapp (or stays on an old version).** Hermes installs each plugin's page into `<HERMES_HOME>/desktop-plugins/`. If that folder was created by another user (for example root during an unrelated setup), Hermes can't write it and only logs `Permission denied … .timeline-replay.staging-*`. `hermes replay dependencies` and Settings → About show a *Host setup* note when this happens. Fix it by making the folder owned by the user Hermes runs as (`chown <user>:<user> <HERMES_HOME>/desktop-plugins`); Hermes then installs the page within seconds.
+- **Desktop shows an older page than the host.** See [Keeping Desktop in step with a remote host](#keeping-desktop-in-step-with-a-remote-host).
+
 ## Thanks
 
 Timeline Replay stands on a lot of other people's work.
 
 - **[Nous Research](https://nousresearch.com)** builds **[Hermes Agent](https://github.com/NousResearch/hermes-agent)**. That covers the agent, its plugin system and hooks, Hermes Desktop and the Webapp, the Desktop plugin SDK (settings pages, the sandboxed guest frame, the MEDIA player), the plugin catalog and marketplace, and the Hermes Agent Plugin Hackathon that started this project. The docs were clear and detailed enough to build a native plugin against.
+- **Orbit's ring** is inspired by the router-ring visualization in a video by @asteri_eth (JEV Engineering): an oblique aperture, a granular belt, radial filaments with bright tips and a scanning wedge. Timeline Replay's version is an independent implementation drawn from Hermes metadata, with none of the original's data or labels.
 - **[HyperFrames](https://hyperframes.heygen.com)** by **[HeyGen](https://github.com/heygen-com/hyperframes)** (Apache-2.0) turns HTML into video. Its `check` gate (layout, runtime, motion, contrast and craft audits) caught real bugs in every round, and its documentation explained BeginFrame capture, the low-memory profile and descendant zoom well enough to build export performance and resolution on top.
 - **[FFmpeg and ffprobe](https://ffmpeg.org)** encode and verify every MP4.
 - **[Chromium](https://www.chromium.org)**, **chrome-headless-shell** and **[Puppeteer](https://pptr.dev)** power HyperFrames' rendering and the real-browser checks in `tests/`. SwiftShader makes software-GL rendering possible on hosts without a GPU.

@@ -358,6 +358,16 @@ class ReplayTests(unittest.TestCase):
         self.assertIn('id="loop"', html)
         self.assertIn('"loop":false', html)
 
+    def test_host_note_for_unwritable_desktop_plugins(self):
+        deps = sys.modules['timeline_test.dependencies']
+        (self.home / 'desktop-plugins').mkdir(exist_ok=True)
+        with patch('timeline_test.dependencies.os.access', return_value=False):
+            notes = deps.host_notes(self.home)
+        self.assertTrue(notes and 'desktop-plugins' in notes[0] and 'chown' in notes[0])
+        with patch('timeline_test.dependencies.os.access', return_value=True):
+            self.assertEqual(deps.host_notes(self.home), [])
+        self.assertIn('host', deps.inspect(self.home))
+
     def test_low_memory_note_is_non_blocking(self):
         with patch('timeline_test.dependencies.memory_total_mb', return_value=8192):
             notes = sys.modules['timeline_test.dependencies'].performance_notes()
@@ -375,7 +385,12 @@ class ReplayTests(unittest.TestCase):
     def test_render_eta_waits_for_warm_up(self):
         clock = iter([0, 1, 6, 16])
         state = {}
-        with patch('timeline_test.rendering.time.monotonic', side_effect=lambda: next(clock)):
+        # Fake only the rendering module's clock: patching time.monotonic globally lets any other
+        # thread consume the four values and made this test fail intermittently under load.
+        import time as real_time, types
+        fake = types.SimpleNamespace(**{k: getattr(real_time, k) for k in dir(real_time) if not k.startswith('_')})
+        fake.monotonic = lambda: next(clock)
+        with patch('timeline_test.rendering.time', fake):
             rendering.parse_progress('Capturing frame 3/1000', 'rendering', state)    # t=0: warm-up, slow frames
             rendering.parse_progress('Capturing frame 20/1000', 'rendering', state)   # t=1: 2% done, too early
             self.assertNotIn('eta_seconds', state)

@@ -2,7 +2,7 @@ import { ROUTES_AREA, SIDEBAR_NAV_AREA, Button, Input, host, useValue, useQuery,
 import * as SDK from '@hermes/plugin-sdk';
 import { createElement as h, useState, useEffect, useRef, useMemo } from 'react';
 
-const UI_VERSION='0.2.18', UI_API=1;
+const UI_VERSION='0.3.0', UI_API=1;
 // With a remote Hermes host the Desktop page is a separate copy on this computer; updating the
 // host does not update it. Hermes' own Desktop-only install link opens its install dialog
 // (nothing installs until the user confirms there); this plugin never fetches its own files.
@@ -150,7 +150,8 @@ function SettingsAbout({ctx}){const [status,err]=useStatus(ctx);const deps=statu
   row('Version',status?`Page v${UI_VERSION} · host loaded v${status.version}${status.installed_version&&status.installed_version!==status.version?` · installed v${status.installed_version} (restart Hermes)`:''} · API ${status.api}`:`Page v${UI_VERSION}`,null),
   row('Backend',err||(status?`Serving profile ${status.serving_profile}; ${status.profiles.length} source(s).`:'Checking…'),null),
   row('Video export',deps?(deps.ready?'Renderer ready on this host.':`${deps.items.filter(x=>!x.ready).length} prerequisite(s) missing; open Timeline Replay → Video setup.`):'—',null),
-  ...((deps?.items)||[]).map(d=>row(d.label,d.ready?'Ready':d.detail,null)));}
+  ...((deps?.items)||[]).map(d=>row(d.label,d.ready?'Ready':d.detail,null)),
+  ...((deps?.host)||[]).map(n=>row('Host setup',n,null)));}
 function registerSettings(ctx){
   const page={id:'settings',title:'Timeline Replay',icon:'history',order:0,render:()=>h(SettingsPlayback,{ctx}),
     children:[{id:'build',title:'Build',render:()=>h(SettingsBuild,{ctx})},{id:'export',title:'Export',render:()=>h(SettingsExport,{ctx})},{id:'about',title:'About',render:()=>h(SettingsAbout,{ctx})}]};

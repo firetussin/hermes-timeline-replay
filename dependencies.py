@@ -88,7 +88,7 @@ def inspect(home=None):
         dict(id="ffprobe", label="ffprobe", ready=bool(shutil.which("ffprobe")), detail="On PATH" if shutil.which("ffprobe") else "Not found"),
         dict(id="browser", label="Chrome / Chromium", ready=bool(browser), detail="Detected" if browser else "Choose an installed browser or complete setup"),
     ]
-    return dict(ready=all(x["ready"] for x in items), items=items, performance=performance_notes(),
+    return dict(ready=all(x["ready"] for x in items), items=items, performance=performance_notes(), host=host_notes(home),
                 note="HTML previews need none of these. Status checks never download software.")
 
 
@@ -120,6 +120,16 @@ def memory_total_mb():
         except (AttributeError, ValueError, OSError):
             return None
     return total
+
+
+def host_notes(home=None):
+    """Setup problems outside video export that Hermes itself only logs."""
+    notes = []
+    pages = data_dir(home).parents[1] / "desktop-plugins"
+    if pages.is_dir() and not os.access(pages, os.W_OK | os.X_OK):
+        notes.append(f"Hermes can't write {pages}, so the Webapp can't install or update this plugin's page (Hermes only logs 'Permission denied'). "
+                     f"Make that folder owned by the user Hermes runs as, for example: chown <user>:<user> {pages}")
+    return notes
 
 
 def performance_notes():
