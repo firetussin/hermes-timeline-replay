@@ -11,14 +11,15 @@ const context={useRef:()=>({current:null}),MutationObserver:class{observe(){}dis
   useEffect:()=>{},window:{addEventListener(){},removeEventListener(){},location:{reload(){}}},
   useValue:()=> 'Research',useQuery:opts=>({
     isError:opts.queryKey.at(-1)==='status'&&Boolean(globalThis.failStatus),
-    data:opts.queryKey.at(-1)==='status'&&globalThis.failStatus?undefined:opts.queryKey.at(-1)==='status'?{profiles:['current','Research'],renderer_ready:false,dependencies:{items:[{id:'node',label:'Node.js',ready:false,detail:'Not found'}]}}:opts.queryKey.at(-1)==='demo-preview'?{html:'<p>SYNTHETIC SAMPLE</p>'}:{jobs:[]},
+    data:opts.queryKey.at(-1)==='status'&&globalThis.failStatus?undefined:opts.queryKey.at(-1)==='status'?{version:globalThis.hostVersion,profiles:['current','Research'],renderer_ready:false,dependencies:{items:[{id:'node',label:'Node.js',ready:false,detail:'Not found'}]}}:opts.queryKey.at(-1)==='demo-preview'?{html:'<p>SYNTHETIC SAMPLE</p>'}:{jobs:[]},
     refetch:async()=>{},isLoading:false
   })};
 vm.createContext(context);vm.runInContext(source,context);
 let contributions=[];
 const actionsRun=[];
+const opened=[],clipboard=[];
 let settingsPage=null;const stored={};
-const ctx={registerSettingsPage:pg=>{settingsPage=pg;return()=>{};},listActions:()=>[{id:'profile.default',label:'Default profile'}],runAction:id=>{actionsRun.push(id);return{ok:true};},storage:{get:(k,d)=>k in stored?stored[k]:d,set:(k,v)=>{stored[k]=v;}},addEventListener:()=>()=>{},registerMany:x=>contributions.push(...x),os:{writeClipboard:async()=>{}},rest:async(path,opts)=>{
+const ctx={registerSettingsPage:pg=>{settingsPage=pg;return()=>{};},listActions:()=>[{id:'profile.default',label:'Default profile'}],runAction:id=>{actionsRun.push(id);return{ok:true};},storage:{get:(k,d)=>k in stored?stored[k]:d,set:(k,v)=>{stored[k]=v;}},addEventListener:()=>()=>{},registerMany:x=>contributions.push(...x),os:{writeClipboard:async x=>{clipboard.push(x);return true;},openExternal:async url=>{opened.push(url);return globalThis.openOk!==false;}},rest:async(path,opts)=>{
   requests.push({path,opts});
   if(opts?.body?.action==='setup')return{prompt:'Install only missing render tools on this connected Hermes host.'};
   return{ok:true,jobs:[]};
@@ -37,7 +38,7 @@ find(tree,'All available').props.onClick();tree=render();
 find(tree,'Create replay').props.onClick();await new Promise(resolve=>setImmediate(resolve));
 const build=requests.find(r=>r.opts?.body?.action==='build');
 assert.equal(build.opts.body.client_api,1);
-assert.match(text(tree),/v0\.2\.17/);
+assert.match(text(tree),/v0\.2\.18/);
 assert.match(text(tree),/Metadata only: no prompts, transcripts or tool results\./);
 assert.equal(build.opts.body.range,'all');assert.equal(build.opts.body.pace,'social');assert.equal(build.opts.body.seconds,30);assert.equal(build.opts.body.history,true);
 tree=render();await find(tree,'Video setup').props.onClick();tree=render();
@@ -62,4 +63,22 @@ stored.defaults={...(stored.defaults||{}),resolution:'720p',eventsLimit:50000};
 for(const k of Object.keys(states))delete states[k];globalThis.failStatus=false;requests.length=0;context.navigator.userAgent='';
 tree=render();find(tree,'Create replay').props.onClick();await new Promise(r=>setImmediate(r));
 const b2=requests.find(r=>r.opts?.body?.action==='build');assert.equal(b2.opts.body.resolution,'720p');assert.equal(b2.opts.body.events_limit,50000);
-console.log('Desktop: settings page (4 pages) + defaults to build, Webapp guest frame + Electron srcdoc frame, other-profile state + switch action, native controls, sample preview, all-time/social build payload, setup draft without installation, setup toggle, version label, client_api, render readiness guard passed.');
+// Version notice: host newer than this page → Update Desktop page opens Hermes' Desktop-only install link.
+const notice=t=>flatten(t).find(x=>x.tag?.name==='VersionNotice');
+const showNotice=()=>{cursor=0;const t=render();const n=notice(t);if(!n)return null;cursor=500;return n.tag(n.props);};
+for(const k of Object.keys(states))delete states[k];
+assert.equal(notice(render()),undefined,'no notice when versions match or host version unknown');
+globalThis.hostVersion='0.2.99';let nt=showNotice();
+assert.match(text(nt),/v0\.2\.99 is on the Hermes host; this Desktop page is v0\.2\.18/);
+await find(nt,'Update Desktop page').props.onClick();
+assert.deepEqual(opened,['hermes://plugin-desktop/install?repo=firetussin/hermes-timeline-replay&force=1']);
+nt=showNotice();assert.doesNotMatch(text(nt),/could not open/);
+globalThis.openOk=false;await find(nt,'Update Desktop page').props.onClick();nt=showNotice();
+assert.match(text(nt),/could not open its install dialog/);
+await find(nt,'copy the install link').props.onClick();assert.equal(clipboard.at(-1),opened[0]);
+nt=showNotice();assert.ok(find(nt,'Link copied'));
+for(const k of Object.keys(states))delete states[k];globalThis.openOk=true;globalThis.hostVersion='0.2.9';nt=showNotice();
+assert.match(text(nt),/newer than the plugin on the Hermes host \(v0\.2\.9\)/);assert.ok(!find(nt,'Update Desktop page'));
+assert.ok(!requests.some(r=>r.opts?.body?.action==='install'),'the plugin never installs anything itself');
+globalThis.hostVersion=undefined;
+console.log('Desktop: settings page (4 pages) + defaults to build, Webapp guest frame + Electron srcdoc frame, other-profile state + switch action, native controls, sample preview, all-time/social build payload, setup draft without installation, setup toggle, version label, client_api, render readiness guard, version notice (Desktop-only install link, fallback, newer-page case) passed.');

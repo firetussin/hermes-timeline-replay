@@ -1,3 +1,7 @@
+# Timeline Replay 0.2.18 — November 11, 2026
+
+Desktop/host version notice with an Update Desktop page button (Hermes' Desktop-only install link); composition code is unchanged. Development PC: 46 Python tests pass. The Desktop harness now also covers the notice: the link opened, the fallback with copy-link when it can't open, no button when the page is newer, and no install request from the plugin. The seek and lane-visibility harnesses pass. HyperFrames check on the medium Social 1080p stress fixture: 0 errors, 0 runtime warnings, 2 known craft warnings. The Desktop button itself needs a check in a real Desktop connected to a remote host.
+
 # Timeline Replay 0.2.17 — November 11, 2026
 
 Intro text in the page header and Settings → About, and an MIT LICENSE; composition code is unchanged. Development PC: 46 Python tests pass; the Desktop harness (now also asserting the intro text), seek and lane-visibility harnesses pass; HyperFrames check on the medium Social 1080p stress fixture: 0 errors, 0 runtime warnings, 2 known craft warnings.

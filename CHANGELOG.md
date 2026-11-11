@@ -1,5 +1,12 @@
 # Changes
 
+## 0.2.18 — November 11, 2026
+
+Update the Desktop page too (it changed).
+
+- **Desktop/host version notice:** with a remote Hermes host, updating the host never updated the Desktop copy, and the old notice's Reload just reloaded the same old page. When the host is newer, the page header and Settings → About now show the two versions and an **Update Desktop page** button. It opens Hermes' Desktop-only install link (`hermes://plugin-desktop/install?…&force=1`), so Hermes' install dialog opens with only Desktop selected and nothing installs until you confirm. If the link can't be opened, the notice shows the Install from Git steps and a copy-link button. When the page is newer than the host, it says to update the host instead.
+- **README:** a "Keeping Desktop in step with a remote host" section and a Disclosures line for the update link.
+
 ## 0.2.17 — November 11, 2026
 
 - **Explains itself in the app:** a short intro under the page title and as the first row of Settings → Plugins → Timeline Replay → About (what it does; metadata only, no prompts, transcripts or tool results).
