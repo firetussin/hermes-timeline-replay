@@ -2,7 +2,7 @@ import { ROUTES_AREA, SIDEBAR_NAV_AREA, Button, Input, host, useValue, useQuery,
 import * as SDK from '@hermes/plugin-sdk';
 import { createElement as h, useState, useEffect, useRef, useMemo } from 'react';
 
-const UI_VERSION='0.5.3', UI_API=1;
+const UI_VERSION='0.5.4', UI_API=1;
 // Style picks the view; Pacing (Timeline only) picks the timing. Both map onto the one `pace` setting.
 const LANE_PACES=['social','balanced','linear'],STYLES=[['timeline','Timeline'],['orbit','Orbit'],['galaxy','Galaxy'],['skyline','Skyline'],['river','Flow river'],['pulse','Pulse'],['clock','Day clock'],['neural','Neural net'],['rain','Code rain'],['ridgelines','Ridgelines']],styleOf=p=>LANE_PACES.includes(p)?'timeline':p;
 const STYLE_HELP={timeline:'Profile lanes on a timeline, with Social, Balanced or Linear timing.',orbit:'A turning 3D ring; every event shoots out as a ray.',galaxy:'A spiral with one arm per profile; events are stars.',skyline:'An isometric city: a row per profile, buildings per time slice.',river:'Profiles flow into models and tools; particles are live events.',pulse:'A heart-monitor trace per profile; every event is a beat.',clock:'A 24-hour face; events sit at their time of day.',neural:'Sessions fire pulses into the tools and models they use.',rain:'Each event falls as its tool name onto its profile’s pile.',ridgelines:'A ridge of activity over time for each profile.'};;

@@ -1,3 +1,7 @@
+# Timeline Replay 0.5.4 — November 12, 2026
+
+Artwork and version only. Python tests and the Desktop harness pass; the composition code is unchanged from 0.5.3.
+
 # Timeline Replay 0.5.3 — November 12, 2026
 
 - **CT114 real data, 0.5.2** (HOST8): installed pinned at d096f39f; Ridgelines all-time 60 s 1080p 208 s, gate ok; Scout now a filled band from its own label (fix confirmed).

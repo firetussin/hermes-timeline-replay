@@ -1,5 +1,9 @@
 # Changes
 
+## 0.5.4 — November 12, 2026
+
+- **Artwork:** new catalog banner (`docs/media/banner.jpg`, 1600×800, 2:1 as the catalog card and detail page expect) and the same banner at the top of the README, which the plugin's docs page renders. It replaces the earlier generated banner. No code changes besides the version.
+
 ## 0.5.3 — November 12, 2026
 
 Catalog review (teknium1, on 0.5.1): the update notice's copyable fallbacks now stay on the reviewed build.
