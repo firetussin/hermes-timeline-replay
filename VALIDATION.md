@@ -1,3 +1,8 @@
+# Timeline Replay 0.5.3 — November 12, 2026
+
+- **CT114 real data, 0.5.2** (HOST8): installed pinned at d096f39f; Ridgelines all-time 60 s 1080p 208 s, gate ok; Scout now a filled band from its own label (fix confirmed).
+- **Development PC, 0.5.3:** Desktop-page-only change (two constants and notice text). Desktop harness asserts the catalog link and `hermes plugins update` command; 49 Python tests and the seek harness pass; HyperFrames check on Social and Ridgelines unchanged (0 errors, 0 runtime and lint warnings).
+
 # Timeline Replay 0.5.2 — November 11, 2026
 
 - **CT114 real data, 0.5.1** (HOST8): installed pinned at 10f8fc30; Ridgelines 195 s and Day clock 204 s (all-time 60 s 1080p), gate ok. Day clock fix confirmed in all 11 contact-sheet tiles. Ridgelines: Scout's ridge read as missing. It was drawn rows above its label because Scout never goes quiet; addressed by tinted fills in 0.5.2.

@@ -2,17 +2,17 @@ import { ROUTES_AREA, SIDEBAR_NAV_AREA, Button, Input, host, useValue, useQuery,
 import * as SDK from '@hermes/plugin-sdk';
 import { createElement as h, useState, useEffect, useRef, useMemo } from 'react';
 
-const UI_VERSION='0.5.2', UI_API=1;
+const UI_VERSION='0.5.3', UI_API=1;
 // Style picks the view; Pacing (Timeline only) picks the timing. Both map onto the one `pace` setting.
 const LANE_PACES=['social','balanced','linear'],STYLES=[['timeline','Timeline'],['orbit','Orbit'],['galaxy','Galaxy'],['skyline','Skyline'],['river','Flow river'],['pulse','Pulse'],['clock','Day clock'],['neural','Neural net'],['rain','Code rain'],['ridgelines','Ridgelines']],styleOf=p=>LANE_PACES.includes(p)?'timeline':p;
 const STYLE_HELP={timeline:'Profile lanes on a timeline, with Social, Balanced or Linear timing.',orbit:'A turning 3D ring; every event shoots out as a ray.',galaxy:'A spiral with one arm per profile; events are stars.',skyline:'An isometric city: a row per profile, buildings per time slice.',river:'Profiles flow into models and tools; particles are live events.',pulse:'A heart-monitor trace per profile; every event is a beat.',clock:'A 24-hour face; events sit at their time of day.',neural:'Sessions fire pulses into the tools and models they use.',rain:'Each event falls as its tool name onto its profile’s pile.',ridgelines:'A ridge of activity over time for each profile.'};;
 // With a remote Hermes host the plugin has two copies: the agent half on the host and this Desktop page.
 // When their versions differ, the notice sends the user to Hermes' own Plugins tab (Update / Update all)
 // and names the host command. Hermes refuses hermes:// links opened from inside the app, so the install
-// link is only offered for copying (Win+R or a browser). This plugin never fetches its own files.
-const REPO='firetussin/hermes-timeline-replay';
-const UPDATE_LINK=`hermes://plugin/install?repo=${REPO}&force=1`;
-const HOST_COMMAND=`hermes plugins install ${REPO} --force --enable && hermes gateway restart`;
+// link is only offered for copying (Win+R or a browser). Both copyable fallbacks stay on the reviewed
+// catalog build (catalog link, `hermes plugins update`). This plugin never fetches its own files.
+const UPDATE_LINK='hermes://plugin/install?catalog=timeline-replay';
+const HOST_COMMAND='hermes plugins update timeline-replay && hermes gateway restart';
 const verCmp=(a,b)=>{const x=String(a).split('.').map(n=>parseInt(n,10)||0),y=String(b).split('.').map(n=>parseInt(n,10)||0);for(let i=0;i<Math.max(x.length,y.length);i++){const d=(x[i]||0)-(y[i]||0);if(d)return d<0?-1:1;}return 0;};
 function VersionNotice({ctx,hostVersion,apiMismatch}){const [copied,setCopied]=useState('');const older=verCmp(UI_VERSION,hostVersion)<0;
   async function copy(text,what){let ok=false;try{ok=await ctx.os?.writeClipboard?.(text);}catch{}setCopied(ok?what:'failed');}

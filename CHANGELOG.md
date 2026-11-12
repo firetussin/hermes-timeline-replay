@@ -1,5 +1,14 @@
 # Changes
 
+## 0.5.3 — November 12, 2026
+
+Catalog review (teknium1, on 0.5.1): the update notice's copyable fallbacks now stay on the reviewed build.
+
+- **Copy update link** copies the catalog link `hermes://plugin/install?catalog=timeline-replay` instead of `repo=…&force=1`, which force-installed the default branch.
+- **Copy host command** copies `hermes plugins update timeline-replay && hermes gateway restart` instead of `hermes plugins install … --force --enable`, which moved a catalog install to the default branch.
+- The `repo=` link and Git commands stay in the README for installs outside the catalog.
+- Includes 0.5.2's Ridgelines fix.
+
 ## 0.5.2 — November 11, 2026
 
 - **Ridgelines:** on CT114 the busiest, steadiest profile (Scout) never came down to its own baseline, so its ridge floated in the rows above while its label sat next to empty space (HOST8 re-render of 0.5.1). Each ridge's area is now filled with a tint of its colour, so every ridge reads as a band rising from its own label, and the maximum ridge height is lower (2.1 rows instead of 2.6) to reduce overlap.

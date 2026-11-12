@@ -1,4 +1,4 @@
-# Timeline Replay 0.5.2
+# Timeline Replay 0.5.3
 
 Animated replays of recorded Hermes activity across explicitly selected profiles and agents. Build private HTML, preview it inside Hermes Desktop, and render the same artwork to MP4 on the connected Hermes host.
 
@@ -11,7 +11,7 @@ Animated replays of recorded Hermes activity across explicitly selected profiles
 - **Video on the Hermes host.** HyperFrames renders the MP4 at 720p, 1080p, 1440p or 4K. Exports show live progress with an ETA learned on that host. Watch or download finished videos in the page.
 - **Settings → Plugins → Timeline Replay** holds per-user defaults. The CLI (`hermes replay …`) has the same options plus a live terminal HUD.
 
-See [CHANGELOG.md](CHANGELOG.md) for each release, from 0.2.1 to 0.5.2.
+See [CHANGELOG.md](CHANGELOG.md) for each release, from 0.2.1 to 0.5.3.
 
 Open [the animated sample](demo/replay.html), [the restrained Linear sample](demo/linear.html), or [the Desktop design preview](demo/desktop-preview.html). The design preview uses a mocked Hermes SDK, not a connection to a real profile. It includes dark/light theme switches; the plugin itself uses the app's actual SDK components.
 
@@ -20,7 +20,7 @@ Open [the animated sample](demo/replay.html), [the restrained Linear sample](dem
 With a remote Hermes host, the plugin has two halves: the agent half on the host and a Desktop copy on each computer that connects to it. Each is updated separately, and nothing updates on its own.
 
 - **Update both at once:** **Capabilities → Plugins → Install from Git**, enter `firetussin/hermes-timeline-replay`, keep both parts checked and replace the existing install. Then restart the gateway on the host: `hermes gateway restart` (without `-y` it waits for running work to finish). The host keeps running the old code until that restart.
-- **From the page:** when the host and this page differ, the page shows both versions. If this page is behind, **Open Plugins** takes you to Capabilities → Plugins, where Hermes' own **Update** (or **Update all**) refreshes it. If the host is behind, the page shows the host command (with **Copy host command**). **Copy update link** copies `hermes://plugin/install?repo=firetussin/hermes-timeline-replay&force=1`, which opens Hermes' install dialog for both parts when pasted into Win+R or a browser address bar; Hermes refuses `hermes://` links opened from inside the app.
+- **From the page:** when the host and this page differ, the page shows both versions. If this page is behind, **Open Plugins** takes you to Capabilities → Plugins, where Hermes' own **Update** (or **Update all**) refreshes it. If the host is behind, the page shows the host command `hermes plugins update timeline-replay && hermes gateway restart` (with **Copy host command**). **Copy update link** copies the catalog link `hermes://plugin/install?catalog=timeline-replay`, which opens Hermes' install dialog when pasted into Win+R or a browser address bar (Hermes refuses `hermes://` links opened from inside the app). Both keep a catalog install on the reviewed build; the Git commands in this section are for installs outside the catalog.
 - **Pinned, on the host:** `hermes plugins install firetussin/hermes-timeline-replay --ref <sha> --force --enable`, then the restart, then update the Desktop page from the page.
 - **Webapp:** after a host-side update, reload the Webapp (or Rescan in Capabilities → Plugins) so it picks up the new page.
 
@@ -246,7 +246,7 @@ What the plugin does on the Hermes host, in one place:
 - **Local processes:** only when the user asks to render. It then runs the preinstalled HyperFrames CLI (Node.js), which drives Chromium/chrome-headless-shell, plus FFmpeg/ffprobe as argument-list subprocesses with a limited environment (no provider or bot credentials). A render runs as a background thread in the gateway process until it finishes.
 - **Network:** the plugin makes no network calls and has no telemetry. It sets `HYPERFRAMES_NO_TELEMETRY`, `HYPERFRAMES_NO_UPDATE_CHECK` and `DO_NOT_TRACK` for the renderer.
 - **Installs:** none. Video setup only drafts a chat request listing the missing tools for the user to review and send; nothing is downloaded or installed by the plugin.
-- **Updates:** when this computer's Desktop page and the plugin on the Hermes host differ, the page shows both versions, a button to Hermes' Capabilities → Plugins tab (in-app navigation), and copy buttons for the host command and Hermes' install link (`hermes://plugin/install?repo=firetussin/hermes-timeline-replay&force=1`). Nothing installs unless you act in Hermes. The plugin never checks for updates online and never downloads or replaces its own files.
+- **Updates:** when this computer's Desktop page and the plugin on the Hermes host differ, the page shows both versions, a button to Hermes' Capabilities → Plugins tab (in-app navigation), and copy buttons for the host command (`hermes plugins update timeline-replay && hermes gateway restart`) and Hermes' catalog install link (`hermes://plugin/install?catalog=timeline-replay`), both of which stay on the reviewed catalog build. Nothing installs unless you act in Hermes. The plugin never checks for updates online and never downloads or replaces its own files.
 - **Version check:** readiness runs the configured HyperFrames CLI with `--version` (same limited environment as renders) and notes when it isn't the tested version.
 - **Credentials:** none read, stored or required.
 - **Desktop:** SDK surface only (routes, sidebar nav, settings page, `SandboxedFrame`, `MessageTextContent` for the MEDIA player, `captureGatewayFileDownload`). There are no core overrides and no reaching into app markup.
